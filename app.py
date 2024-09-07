@@ -92,24 +92,36 @@ with tabs[1]:
             )
             st.write(calculator_results)
     elif input_method == 'Image from clipboard':
-        def main2():
+         def main2():
             st.header("Extract Prime Parts from Clipboard Image")
 
             paste_result = pbutton("📋 Paste an image")
-            image_ = paste_result.image_data
-            image_np = np.array(image_)
-            # Initialize EasyOCR reader
-            reader = easyocr.Reader(['en'])
-            # Perform OCR
-            result = reader.readtext(image_np)
-            # Extract text from the result
-            text = ' '.join([item[1] for item in result])
-            extracted_text = text
-
             if paste_result.image_data is not None:
-                st.write('Pasted image:')
-                st.image(paste_result.image_data)
-                st.session_state.extracted_texts.extend(extracted_text)
+                image_data = paste_result.image_data
+                if isinstance(image_data, bytes):
+                    image = Image.open(io.BytesIO(image_data))
+                elif isinstance(image_data, Image.Image):
+                    image = image_data
+                else:
+                    st.error("Unsupported image format.")
+                    return
+                
+                # Convert image to numpy array
+                image_np = np.array(image)
+
+                # Initialize EasyOCR reader
+                reader = easyocr.Reader(['en'])
+
+                # Perform OCR
+                try:
+                    result = reader.readtext(image_np)
+                    # Extract text from the result
+                    text = ' '.join([item[1] for item in result])
+                    st.session_state.extracted_texts.extend(text.split())
+                    st.write('Pasted image:')
+                    st.image(image)
+                except Exception as e:
+                    st.error(f"Error during OCR processing: {e}")
 
             # Display extracted texts from clipboard images
             if st.session_state.extracted_texts:
@@ -125,13 +137,9 @@ with tabs[1]:
                 st.success("Extracted items cleared successfully!")
                 st.rerun()  # Force a rerun to update the extracted parts display
 
-                # Clear last extracted text button
-
-
             # Show the "Calculate Profit" button if there's at least one extracted text
             if st.session_state.extracted_texts:
                 if st.button("Calculate Profit"):
-
                     dictionary = count_types(st.session_state.expanded_items)
                     counts = count(dictionary)
                     result = run_prime_calculator(
