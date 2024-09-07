@@ -103,16 +103,18 @@ with tabs[1]:
                 # Initialize EasyOCR reader
                 reader = easyocr.Reader(['en'])
 
-                # Perform OCR
                 try:
                     result = reader.readtext(image_np)
-                    # Extract text from the result, join it into lines and list them
                     texts = [item[1] for item in result]
+                except Exception as e:
+                    st.error(f"Error during OCR processing: {e}")
+                    texts = []  # Handle OCR failure by assigning an empty list
+                
+                if texts:  # Check if texts are not empty before extending
                     st.session_state.extracted_texts.extend(texts)
                     st.write('Pasted image:')
                     st.image(image)
-                except Exception as e:
-                    st.error(f"Error during OCR processing: {e}")
+
 
             # Display extracted texts from clipboard images
             if st.session_state.extracted_texts:
