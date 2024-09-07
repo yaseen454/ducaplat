@@ -1,11 +1,9 @@
 import easyocr
-import io
 import streamlit as st
 from calc import run_prime_calculator
 from ocr import expand_list,count_types,count,return_df
-from PIL import Image, ImageGrab
+from PIL import Image
 from streamlit_paste_button import paste_image_button as pbutton
-import pytesseract
 import numpy as np
 
 # Initialize session state variables globally if they don't exist
@@ -42,13 +40,6 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 
-def process_image(image):
-    """Extract text from the uploaded image."""
-    text = pytesseract.image_to_string(image)
-    formatted_text = [line.strip() for line in text.splitlines() if line.strip()]
-    return formatted_text
-
-
 # Ribbon for page navigation
 tabs = st.tabs(["Home", "Calculator","Help","About"])
 
@@ -56,7 +47,7 @@ tabs = st.tabs(["Home", "Calculator","Help","About"])
 st.sidebar.header("Input Method")
 input_method = st.sidebar.radio(
     "Choose how you want to input prime parts:",
-    ("Manual Input", "Image Upload", "Image from clipboard")
+    ("Manual Input", "Image from clipboard")
 )
 
 with tabs[0]:
@@ -100,61 +91,6 @@ with tabs[1]:
                 plot=st.session_state.enable_plot, calc_type=calc_type,display_anova=st.session_state.display_anova
             )
             st.write(calculator_results)
-    elif input_method == 'Image Upload':
-        # Function to process the image and extract text
-        def main1():
-            st.title("Multi-Image Text Extractor")
-            # Initialize session state for storing extracted texts and expanded list
-            if 'extracted_texts' not in st.session_state:
-                st.session_state.extracted_texts = []
-            if 'expanded_items' not in st.session_state:
-                st.session_state.expanded_items = []
-
-            # File uploader widget to allow uploading multiple images
-            uploaded_files = st.file_uploader("Upload images (PNG, JPG, JPEG)", type=["png", "jpg", "jpeg"],
-                                              accept_multiple_files=True)
-
-            # Button to trigger processing of images
-            if st.button("Process Images"):
-                if uploaded_files:
-                    extracted_texts = []
-                    # Process each uploaded image
-                    for uploaded_file in uploaded_files:
-                        image = Image.open(uploaded_file)
-                        text = process_image(image)
-                        extracted_texts.append(text)
-
-                        # Display the extracted text
-                        st.write(f"Text extracted from: {uploaded_file.name}")
-                        st.write("\n".join(text))
-
-                        # Optionally show the image
-                        st.image(image, caption=f'Uploaded Image: {uploaded_file.name}', use_column_width=True)
-
-                    # Flatten and store the extracted texts in session state
-                    flat_extracted_texts = [item for sublist in extracted_texts for item in sublist]
-                    st.session_state.extracted_texts = flat_extracted_texts
-                    st.success("Images processed successfully!")
-                else:
-                    st.warning("Please upload at least one image to process.")
-
-            # If there are extracted texts in session state, proceed to expansion and profit calculation
-            if st.session_state.extracted_texts:
-                st.subheader("Expanded List")
-                expanded_items = expand_list(st.session_state.extracted_texts)
-                st.session_state.expanded_items = expanded_items
-                st.write(expanded_items)
-
-                # Show the "Calculate Profit" button
-                if st.button("Calculate Profit"):
-                    # Perform the profit calculation using expanded items
-                    dictionary = count_types(expanded_items)
-                    counts = count(dictionary)
-                    result = run_prime_calculator(counts[0], counts[1], counts[2], counts[3], counts[4], bypass=True,
-                                                  plot=st.session_state.enable_plot,calc_type=calc_type,display_anova=st.session_state.display_anova)
-                    st.write(result)
-                # Run the main function
-        main1()
     elif input_method == 'Image from clipboard':
         def main2():
             st.header("Extract Prime Parts from Clipboard Image")
