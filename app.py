@@ -1,3 +1,5 @@
+import subprocess
+import sys
 import streamlit as st
 from calc import run_prime_calculator
 from ocr import expand_list,count_types,count,return_df
@@ -44,19 +46,50 @@ def process_image(image):
     formatted_text = [line.strip() for line in text.splitlines() if line.strip()]
     return formatted_text
 
-
-def process_clipboard_image():
+def check_clipboard_tools():
+    """Check if clipboard tools are available on Linux."""
     try:
-        image = ImageGrab.grabclipboard()
-        if isinstance(image, Image.Image):
-            return process_image(image)
-        else:
-            st.warning("No image found in the clipboard.")
+        subprocess.run(["xclip", "-h"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return True
+    except FileNotFoundError:
+        try:
+            subprocess.run(["xsel", "-h"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            return True
+        except FileNotFoundError:
+            try:
+                subprocess.run(["wl-paste", "--help"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                return True
+            except FileNotFoundError:
+                return False
+def process_clipboard_image():
+    if sys.platform == "win32" or sys.platform == "darwin":  # Windows or macOS
+        try:
+            image = ImageGrab.grabclipboard()
+            if isinstance(image, Image.Image):
+                return process_image(image)
+            else:
+                st.warning("No image found in the clipboard.")
+                return None
+        except Exception as e:
+            st.error(f"Error accessing clipboard: {e}")
             return None
-    except Exception as e:
-        st.error(f"Error accessing clipboard: {e}")
+    elif sys.platform == "linux":  # Linux
+        if not check_clipboard_tools():
+            st.error("Clipboard tools (xclip, xsel, wl-paste) are not installed. Please install one of them.")
+            return None
+        try:
+            image = ImageGrab.grabclipboard()
+            if isinstance(image, Image.Image):
+                return process_image(image)
+            else:
+                st.warning("No image found in the clipboard.")
+                return None
+        except Exception as e:
+            st.error(f"Error accessing clipboard: {e}")
+            return None
+    else:
+        st.error("Platform not supported")
         return None
-
 
 def check_clipboard_for_image():
     # Check if the clipboard contains an image
