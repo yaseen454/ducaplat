@@ -23,6 +23,20 @@ if 'display_anova' not in st.session_state:
 if 'enable_plot' not in st.session_state:
     st.session_state.enable_plot = False
 
+st.markdown("""
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
+        .large-title {
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+            color: #DAA520;  /* Dark gold color */
+            font-size: 4em;  /* Adjust font size as needed */
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
 # Ribbon for page navigation
 tabs = st.tabs(["Home", "Calculator", "Help", "About"])
 
