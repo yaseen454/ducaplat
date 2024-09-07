@@ -1,10 +1,12 @@
-import textract
+import easyocr
+import io
 import streamlit as st
 from calc import run_prime_calculator
 from ocr import expand_list,count_types,count,return_df
 from PIL import Image, ImageGrab
 from streamlit_paste_button import paste_image_button as pbutton
 import pytesseract
+import numpy as np
 
 # Initialize session state variables globally if they don't exist
 if 'extracted_texts' not in st.session_state:
@@ -158,7 +160,15 @@ with tabs[1]:
             st.header("Extract Prime Parts from Clipboard Image")
 
             paste_result = pbutton("📋 Paste an image")
-            extracted_text = textract.process(paste_result.image_data)
+            image_ = paste_result.image_data
+            image_np = np.array(image_)
+            # Initialize EasyOCR reader
+            reader = easyocr.Reader(['en'])
+            # Perform OCR
+            result = reader.readtext(image_np)
+            # Extract text from the result
+            text = ' '.join([item[1] for item in result])
+            extracted_text = text
 
             if paste_result.image_data is not None:
                 st.write('Pasted image:')
