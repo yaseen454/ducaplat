@@ -123,8 +123,10 @@ with tabs[1]:
 
             # Clear extracted items button
             if st.button("Clear Extracted Items"):
-                st.session_state.extracted_texts = []
-                st.session_state.expanded_items = []
+                if st.session_state.extracted_texts:
+                    st.session_state.extracted_texts.pop()  # Clear the first (last pasted) item
+                    expanded_items = expand_list(st.session_state.extracted_texts)
+                    st.session_state.expanded_items = expanded_items
                 st.success("Extracted items cleared successfully!")
 
             # Show the "Calculate Profit" button if there's at least one extracted text
