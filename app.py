@@ -92,7 +92,7 @@ with tabs[1]:
             )
             st.write(calculator_results)
     elif input_method == 'Image from clipboard':
-         def main2():
+        def main2():
             st.header("Extract Prime Parts from Clipboard Image")
 
             paste_result = pbutton("📋 Paste an image")
