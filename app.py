@@ -92,7 +92,7 @@ with tabs[1]:
             )
             st.write(calculator_results)
     elif input_method == 'Image from clipboard':
-        def main2():
+         def main2():
             st.header("Extract Prime Parts from Clipboard Image")
 
             paste_result = pbutton("📋 Paste an image")
@@ -105,7 +105,7 @@ with tabs[1]:
                 else:
                     st.error("Unsupported image format.")
                     return
-                
+
                 # Convert image to numpy array
                 image_np = np.array(image)
 
@@ -115,10 +115,9 @@ with tabs[1]:
                 # Perform OCR
                 try:
                     result = reader.readtext(image_np)
-                    # Extract text from the result
-                    text = ' '.join([item[1] for item in result])
-                    formatted_text = ' '.join(text)
-                    st.session_state.extracted_texts.extend(formatted_text.split())
+                    # Extract text from the result, join it into lines and list them
+                    texts = [item[1] for item in result]
+                    st.session_state.extracted_texts.extend(texts)
                     st.write('Pasted image:')
                     st.image(image)
                 except Exception as e:
@@ -136,7 +135,6 @@ with tabs[1]:
                 st.session_state.extracted_texts = []
                 st.session_state.expanded_items = []
                 st.success("Extracted items cleared successfully!")
-                  # Force a rerun to update the extracted parts display
 
             # Show the "Calculate Profit" button if there's at least one extracted text
             if st.session_state.extracted_texts:
