@@ -27,7 +27,9 @@ def determine_type(average_ducats):
         return 'Unknown'  # Default case if none of the conditions match
 
 
-df = pd.read_csv("C:\\Users\\yasee\\Documents\\My PC\\My Files\\My Excel\\Test Excels\\Cleaned Prime Data.csv")
+
+# Load the DataFrame
+df = pd.read_csv('data/Cleaned Prime Data.csv')
 df_cleaned = df.groupby('Item Name').agg({'Ducats': 'mean'}).reset_index()
 df_cleaned.columns = ['Item Name', 'Average Ducats']
 df_cleaned['Type'] = df_cleaned['Average Ducats'].apply(determine_type)
@@ -40,9 +42,9 @@ df_cleaned.loc[df_cleaned['Item Name'] == 'Latron Prime Blueprint', 'Type'] = 'B
 df_cleaned.loc[df_cleaned['Item Name'] == 'Cernos Prime String', 'Type'] = 'Bronze25'
 df_cleaned.loc[df_cleaned['Item Name'] == 'Knell Prime Receiver', 'Type'] = 'Silver45'
 df_cleaned.loc[df_cleaned['Item Name'] == 'Nikana Prime Blueprint', 'Type'] = 'Bronze25'
-df_cleaned.to_csv("C:\\Users\\yasee\\Documents\\My PC\\My Files\\My Excel\\Test Excels\\Cleaned Average Prime Data.csv",
-                  index=False)
 
+# Save the DataFrame to a CSV file
+df_cleaned.to_csv('data/Cleaned Average Prime Data.csv', index=False)
 
 def convert_text_to_list(input_text):
     lines = input_text.strip().splitlines()
