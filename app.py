@@ -91,8 +91,8 @@ with tabs[1]:
                 plot=st.session_state.enable_plot, calc_type=calc_type,display_anova=st.session_state.display_anova
             )
             st.write(calculator_results)
-    elif input_method == 'Image from clipboard':
-         def main2():
+     elif input_method == 'Image from clipboard':
+        def main2():
             st.header("Extract Prime Parts from Clipboard Image")
 
             paste_result = pbutton("📋 Paste an image")
