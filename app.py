@@ -117,7 +117,7 @@ with tabs[1]:
                     result = reader.readtext(image_np)
                     # Extract text from the result
                     text = ' '.join([item[1] for item in result])
-                    formatted_text = ' '.join(text_lines)
+                    formatted_text = ' '.join(text)
                     st.session_state.extracted_texts.extend(formatted_text.split())
                     st.write('Pasted image:')
                     st.image(image)
