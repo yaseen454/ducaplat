@@ -67,7 +67,6 @@ streamlit==1.38.0
 streamlit-paste-button==0.1.2
 sympy==1.13.2
 tenacity==8.5.0
-textract==1.6.5
 tifffile==2024.8.30
 toml==0.10.2
 torch==2.4.1
