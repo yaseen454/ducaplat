@@ -231,7 +231,7 @@ with tabs[2]:
         "- **Step [ 3 ] :** When your done selecting, take screenshots of the selling lists")
     st.write("- **Step [ 4 ] :** Now you're done! upload or copy the images to your clipboard and watch your prime junk transform into plat.")
 
-    image = Image.open("C:\\Users\\yasee\\Pictures\\Rap Covers\\Prime_Parts.png")
+    image = Image.open('data/Prime_Parts.png')
 
     # Display the image
     st.image(image, caption='This is a sample image', use_column_width=True)
