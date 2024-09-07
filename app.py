@@ -122,9 +122,9 @@ with tabs[1]:
                 st.write(st.session_state.expanded_items)
 
             # Clear extracted items button
-            if st.button("Clear Extracted Items"):
+            if st.button("Clear Last Extracted Items"):
                 if st.session_state.extracted_texts:
-                    st.session_state.extracted_texts.pop()  # Clear the first (last pasted) item
+                    st.session_state.extracted_texts.pop(0)  # Clear the first (last pasted) item
                     expanded_items = expand_list(st.session_state.extracted_texts)
                     st.session_state.expanded_items = expanded_items
                 st.success("Extracted items cleared successfully!")
