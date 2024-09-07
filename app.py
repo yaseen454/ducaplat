@@ -119,7 +119,7 @@ with tabs[1]:
                 st.subheader("Extracted Prime Parts")
                 expanded_items = expand_list(st.session_state.extracted_texts)
                 st.session_state.expanded_items = expanded_items
-                st.write(st.session_state.expanded_items)
+                
 
              # Clear last extracted item button
             if st.button("Clear Last Extracted Item"):
@@ -131,11 +131,15 @@ with tabs[1]:
                 else:
                     st.warning("No items to clear.")
 
+            if st.session_state.extracted_texts:
+                st.write(st.session_state.expanded_items)
+
             # Clear all extracted items button
             if st.button("Clear All Extracted Items"):
                 st.session_state.extracted_texts = []
                 st.session_state.expanded_items = []
                 st.success("All extracted items cleared successfully!")
+            
 
             # Show the "Calculate Profit" button if there's at least one extracted text
             if st.session_state.extracted_texts:
