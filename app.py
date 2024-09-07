@@ -1,9 +1,9 @@
-import subprocess
-import sys
+import textract
 import streamlit as st
 from calc import run_prime_calculator
 from ocr import expand_list,count_types,count,return_df
 from PIL import Image, ImageGrab
+from streamlit_paste_button import paste_image_button as pbutton
 import pytesseract
 
 # Initialize session state variables globally if they don't exist
@@ -46,71 +46,7 @@ def process_image(image):
     formatted_text = [line.strip() for line in text.splitlines() if line.strip()]
     return formatted_text
 
-def check_clipboard_tools():
-    """Check if clipboard tools are available on Linux with a timeout."""
-    try:
-        subprocess.run(["xclip", "-h"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=2)
-        return True
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        try:
-            subprocess.run(["xsel", "-h"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=2)
-            return True
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            try:
-                subprocess.run(["wl-paste", "--help"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=2)
-                return True
-            except (FileNotFoundError, subprocess.TimeoutExpired):
-                return False
 
-def fetch_clipboard_image_linux():
-    """Fallback method for Linux to fetch image data with timeout."""
-    try:
-        # Attempt to use xclip, xsel, or wl-paste as a fallback
-        image_data = subprocess.run(
-            ['xclip', '-selection', 'clipboard', '-t', 'image/png', '-o'], 
-            stdout=subprocess.PIPE, 
-            timeout=5  # Add a timeout to avoid indefinite hangs
-        )
-        if image_data.stdout:
-            return Image.open(io.BytesIO(image_data.stdout))
-    except Exception as e:
-        st.error(f"Error accessing clipboard image on Linux: {e}")
-    return None
-
-def process_clipboard_image():
-    platform = os.getenv('PLATFORM', sys.platform)  # Use PLATFORM environment variable if set
-    
-    if platform == "win32" or platform == "darwin":  # Windows or macOS
-        try:
-            image = ImageGrab.grabclipboard()
-            if isinstance(image, Image.Image):
-                return process_image(image)
-            else:
-                st.warning("No image found in the clipboard.")
-                return None
-        except Exception as e:
-            st.error(f"Error accessing clipboard: {e}")
-            return None
-    elif platform == "linux":  # Linux
-        if not check_clipboard_tools():
-            st.error("Clipboard tools (xclip, xsel, wl-paste) are not installed. Attempting fallback methods.")
-        try:
-            image = ImageGrab.grabclipboard()  # Try the default method
-            if isinstance(image, Image.Image):
-                return process_image(image)
-        except Exception as e:
-            st.error(f"Error accessing clipboard using default method: {e}")
-        
-        # Fallback method
-        image = fetch_clipboard_image_linux()
-        if image:
-            return process_image(image)
-        else:
-            st.warning("No image found in the clipboard.")
-            return None
-    else:
-        st.error("Platform not supported")
-        return None
 # Ribbon for page navigation
 tabs = st.tabs(["Home", "Calculator","Help","About"])
 
@@ -221,11 +157,13 @@ with tabs[1]:
         def main2():
             st.header("Extract Prime Parts from Clipboard Image")
 
-            if st.button("Check for Image in Clipboard"):
-                extracted_text = process_clipboard_image()
-                if extracted_text:
-                    st.session_state.extracted_texts.extend(extracted_text)
-                    st.success("Image processed successfully!")
+            paste_result = pbutton("📋 Paste an image")
+            extracted_text = textract.process(paste_result.image_data)
+
+            if paste_result.image_data is not None:
+                st.write('Pasted image:')
+                st.image(paste_result.image_data)
+                st.session_state.extracted_texts.extend(extracted_text)
 
             # Display extracted texts from clipboard images
             if st.session_state.extracted_texts:
