@@ -61,8 +61,22 @@ def check_clipboard_tools():
                 return True
             except FileNotFoundError:
                 return False
+
+def fetch_clipboard_image_linux():
+    """Fallback method for Linux to fetch image data."""
+    try:
+        # Attempt to use xclip, xsel, or wl-paste as a fallback
+        image_data = subprocess.run(['xclip', '-selection', 'clipboard', '-t', 'image/png', '-o'], stdout=subprocess.PIPE)
+        if image_data.stdout:
+            return Image.open(io.BytesIO(image_data.stdout))
+    except Exception as e:
+        st.error(f"Error accessing clipboard image on Linux: {e}")
+    return None
+
 def process_clipboard_image():
-    if sys.platform == "win32" or sys.platform == "darwin":  # Windows or macOS
+    platform = os.getenv('PLATFORM', sys.platform)  # Use PLATFORM environment variable if set
+    
+    if platform == "win32" or platform == "darwin":  # Windows or macOS
         try:
             image = ImageGrab.grabclipboard()
             if isinstance(image, Image.Image):
@@ -73,36 +87,25 @@ def process_clipboard_image():
         except Exception as e:
             st.error(f"Error accessing clipboard: {e}")
             return None
-    elif sys.platform == "linux":  # Linux
+    elif platform == "linux":  # Linux
         if not check_clipboard_tools():
-            st.error("Clipboard tools (xclip, xsel, wl-paste) are not installed. Please install one of them.")
-            return None
+            st.error("Clipboard tools (xclip, xsel, wl-paste) are not installed. Attempting fallback methods.")
         try:
-            image = ImageGrab.grabclipboard()
+            image = ImageGrab.grabclipboard()  # Try the default method
             if isinstance(image, Image.Image):
                 return process_image(image)
-            else:
-                st.warning("No image found in the clipboard.")
-                return None
         except Exception as e:
-            st.error(f"Error accessing clipboard: {e}")
+            st.error(f"Error accessing clipboard using default method: {e}")
+        
+        # Fallback method
+        image = fetch_clipboard_image_linux()
+        if image:
+            return process_image(image)
+        else:
+            st.warning("No image found in the clipboard.")
             return None
     else:
         st.error("Platform not supported")
-        return None
-
-def check_clipboard_for_image():
-    # Check if the clipboard contains an image
-    try:
-        image = ImageGrab.grabclipboard()
-        if isinstance(image, Image.Image):
-            st.image(image, caption="Image from clipboard", use_column_width=True)
-            return image
-        else:
-            st.warning("Clipboard does not contain an image. Please copy an image and try again.")
-            return None
-    except Exception as e:
-        st.error(f"Error accessing clipboard: {e}")
         return None
 
 # Ribbon for page navigation
