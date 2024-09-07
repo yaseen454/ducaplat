@@ -1,10 +1,7 @@
 import pandas as pd
-from itertools import chain
 from calc import run_prime_calculator
-from PIL import ImageGrab, Image
-import pytesseract
 import re
-import streamlit as st
+
 
 # Function to determine the 'Type' based on 'Average Ducats'
 def determine_type(average_ducats):
@@ -107,31 +104,7 @@ def expand_list(items):
             expanded_list.append(item)
     return expanded_list
 
-def image_clipboards():
-    image_texts = []
 
-    while True:
-        st.text_input("Copy an image to the clipboard and press Enter...")
-
-        image = ImageGrab.grabclipboard()
-        if isinstance(image, Image.Image):
-            text = pytesseract.image_to_string(image)
-            formatted_text = [line.strip() for line in text.splitlines() if line.strip()]
-            image_texts.append(formatted_text)
-            st.write("Text extracted:", text)
-            st.write("-" * 40)
-        else:
-            st.write("No image found in clipboard.")
-
-        cont = st.text_input("Do you want to process another image? (y/n): ")
-        if cont.lower() != 'y':
-            break
-
-    # Print all extracted texts for each image
-    for i, text in enumerate(image_texts, start=1):
-        st.write(f"Text from Image {i}: {text}")
-
-    return list(chain(*image_texts))
 
 def dict_count(item_list,dataframe=df_cleaned):
     result = count_types(item_list=item_list,dataframe=dataframe)
@@ -152,21 +125,11 @@ def count(dictionary):
     d = [Bronze15, Bronze25, Silver45, Silver65, Gold]
     return d
 
-def run_ocr(dataframe=df_cleaned,plot=False,calc_type=1):
-    item_list = expand_list(image_clipboards())
-    d = dict_count(item_list,dataframe)
-    return run_prime_calculator(bronze15 = d[0], bronze25 = d[1],silver45 = d[2], silver65 = d[3],
-    gold= d[4], bypass=True, plot=plot, calc_type=calc_type)
-
-
 def price_of_all_primes(calc_type = 1,plot=False,dataframe=df_cleaned):
     d = dict_count(df_cleaned['Item Name'],dataframe=dataframe)
     return run_prime_calculator(bronze15=d[0], bronze25=d[1], silver45=d[2], silver65=d[3],
                                 gold=d[4], bypass=True, plot=plot, calc_type=calc_type)
 
-
-def count_from_ocr():
-    print(count_types(expand_list(image_clipboards())))
 
 # at calculator 1
 min_price_of_all = 1529
