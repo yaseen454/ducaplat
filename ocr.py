@@ -1,0 +1,176 @@
+import pandas as pd
+from itertools import chain
+from calc import run_prime_calculator
+from PIL import ImageGrab, Image
+import pytesseract
+import re
+import streamlit as st
+
+# Function to determine the 'Type' based on 'Average Ducats'
+def determine_type(average_ducats):
+    tolerance = 1e-6
+    if average_ducats == 15:
+        return 'Bronze15'
+    elif average_ducats == 45:
+        return 'Silver45'
+    elif average_ducats == 100:
+        return 'Gold'
+    elif 15 < average_ducats < 30:
+        return 'Bronze25'
+    elif 35 <= average_ducats <= 40:
+        return 'Silver45'
+    elif abs(average_ducats - 40.714286) < tolerance:
+        return 'Bronze25'
+    elif 45 < average_ducats < 100:
+        return 'Silver65'
+    else:
+        return 'Unknown'  # Default case if none of the conditions match
+
+
+df = pd.read_csv("C:\\Users\\yasee\\Documents\\My PC\\My Files\\My Excel\\Test Excels\\Cleaned Prime Data.csv")
+df_cleaned = df.groupby('Item Name').agg({'Ducats': 'mean'}).reset_index()
+df_cleaned.columns = ['Item Name', 'Average Ducats']
+df_cleaned['Type'] = df_cleaned['Average Ducats'].apply(determine_type)
+def return_df():
+    return df_cleaned.drop('Average Ducats',axis=1)
+# Outlier handling
+df_cleaned.loc[df_cleaned['Item Name'] == 'Fang Prime Handle', 'Type'] = 'Bronze25'
+df_cleaned.loc[df_cleaned['Item Name'] == 'Volt Prime Blueprint', 'Type'] = 'Bronze25'
+df_cleaned.loc[df_cleaned['Item Name'] == 'Latron Prime Blueprint', 'Type'] = 'Bronze15'
+df_cleaned.loc[df_cleaned['Item Name'] == 'Cernos Prime String', 'Type'] = 'Bronze25'
+df_cleaned.loc[df_cleaned['Item Name'] == 'Knell Prime Receiver', 'Type'] = 'Silver45'
+df_cleaned.loc[df_cleaned['Item Name'] == 'Nikana Prime Blueprint', 'Type'] = 'Bronze25'
+df_cleaned.to_csv("C:\\Users\\yasee\\Documents\\My PC\\My Files\\My Excel\\Test Excels\\Cleaned Average Prime Data.csv",
+                  index=False)
+
+
+def convert_text_to_list(input_text):
+    lines = input_text.strip().splitlines()
+    result = []
+
+    for line in lines:
+        if ' X ' in line:
+            quantity, item = line.split(' X ', 1)
+            quantity = int(quantity)
+            result.extend([item] * quantity)
+        else:
+            result.append(line)
+
+    return result
+
+def count_types(item_list, dataframe=df_cleaned):
+    # Initialize the dictionary to hold counts of each 'Type'
+    type_counts = {}
+
+    for item in item_list:
+        # Find the corresponding row in the DataFrame
+        row = dataframe[dataframe['Item Name'] == item]
+        if row.empty:
+            # Raise a warning and stop the program if the item isn't found
+            raise ValueError(f"Warning: Item '{item}' was not found amongst prime blueprints.")
+
+        if not row.empty:
+            item_type = row.iloc[0]['Type']  # Get the 'Type' of the item
+
+            # Increment the count in the dictionary
+            if item_type in type_counts:
+                type_counts[item_type] += 1
+            else:
+                type_counts[item_type] = 1
+
+    return type_counts
+
+
+# def expand_list(items):
+#     expanded_list = []
+#     for item in items:
+#         match = re.match(r'(\d+)X (.+)', item)
+#         if match:
+#             count = int(match.group(1))
+#             element = match.group(2)
+#             expanded_list.extend([element] * count)
+#         else:
+#             expanded_list.append(item)
+#     return expanded_list
+
+def expand_list(items):
+    expanded_list = []
+    for item in items:
+        match = re.match(r'(\d+)\s*[xX]\s*(.+)', item)
+        if match:
+            count = int(match.group(1))
+            element = match.group(2).strip()
+            expanded_list.extend([element] * count)
+        else:
+            expanded_list.append(item)
+    return expanded_list
+
+def image_clipboards():
+    image_texts = []
+
+    while True:
+        st.text_input("Copy an image to the clipboard and press Enter...")
+
+        image = ImageGrab.grabclipboard()
+        if isinstance(image, Image.Image):
+            text = pytesseract.image_to_string(image)
+            formatted_text = [line.strip() for line in text.splitlines() if line.strip()]
+            image_texts.append(formatted_text)
+            st.write("Text extracted:", text)
+            st.write("-" * 40)
+        else:
+            st.write("No image found in clipboard.")
+
+        cont = st.text_input("Do you want to process another image? (y/n): ")
+        if cont.lower() != 'y':
+            break
+
+    # Print all extracted texts for each image
+    for i, text in enumerate(image_texts, start=1):
+        st.write(f"Text from Image {i}: {text}")
+
+    return list(chain(*image_texts))
+
+def dict_count(item_list,dataframe=df_cleaned):
+    result = count_types(item_list=item_list,dataframe=dataframe)
+    Bronze15 = result.get('Bronze15', 0)
+    Bronze25 = result.get('Bronze25', 0)
+    Silver45 = result.get('Silver45', 0)
+    Silver65 = result.get('Silver65', 0)
+    Gold = result.get('Gold', 0)
+    d = [Bronze15,Bronze25,Silver45,Silver65,Gold]
+    return d
+
+def count(dictionary):
+    Bronze15 = dictionary.get('Bronze15', 0)
+    Bronze25 = dictionary.get('Bronze25', 0)
+    Silver45 = dictionary.get('Silver45', 0)
+    Silver65 = dictionary.get('Silver65', 0)
+    Gold = dictionary.get('Gold', 0)
+    d = [Bronze15, Bronze25, Silver45, Silver65, Gold]
+    return d
+
+def run_ocr(dataframe=df_cleaned,plot=False,calc_type=1):
+    item_list = expand_list(image_clipboards())
+    d = dict_count(item_list,dataframe)
+    return run_prime_calculator(bronze15 = d[0], bronze25 = d[1],silver45 = d[2], silver65 = d[3],
+    gold= d[4], bypass=True, plot=plot, calc_type=calc_type)
+
+
+def price_of_all_primes(calc_type = 1,plot=False,dataframe=df_cleaned):
+    d = dict_count(df_cleaned['Item Name'],dataframe=dataframe)
+    return run_prime_calculator(bronze15=d[0], bronze25=d[1], silver45=d[2], silver65=d[3],
+                                gold=d[4], bypass=True, plot=plot, calc_type=calc_type)
+
+
+def count_from_ocr():
+    print(count_types(expand_list(image_clipboards())))
+
+# at calculator 1
+min_price_of_all = 1529
+max_price_of_all = 2352
+avg_price_of_all = 1940.5
+
+if __name__ == '__main__':
+    price_of_all_primes()
+
