@@ -47,26 +47,30 @@ def process_image(image):
     return formatted_text
 
 def check_clipboard_tools():
-    """Check if clipboard tools are available on Linux."""
+    """Check if clipboard tools are available on Linux with a timeout."""
     try:
-        subprocess.run(["xclip", "-h"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(["xclip", "-h"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=2)
         return True
-    except FileNotFoundError:
+    except (FileNotFoundError, subprocess.TimeoutExpired):
         try:
-            subprocess.run(["xsel", "-h"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(["xsel", "-h"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=2)
             return True
-        except FileNotFoundError:
+        except (FileNotFoundError, subprocess.TimeoutExpired):
             try:
-                subprocess.run(["wl-paste", "--help"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                subprocess.run(["wl-paste", "--help"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=2)
                 return True
-            except FileNotFoundError:
+            except (FileNotFoundError, subprocess.TimeoutExpired):
                 return False
 
 def fetch_clipboard_image_linux():
-    """Fallback method for Linux to fetch image data."""
+    """Fallback method for Linux to fetch image data with timeout."""
     try:
         # Attempt to use xclip, xsel, or wl-paste as a fallback
-        image_data = subprocess.run(['xclip', '-selection', 'clipboard', '-t', 'image/png', '-o'], stdout=subprocess.PIPE)
+        image_data = subprocess.run(
+            ['xclip', '-selection', 'clipboard', '-t', 'image/png', '-o'], 
+            stdout=subprocess.PIPE, 
+            timeout=5  # Add a timeout to avoid indefinite hangs
+        )
         if image_data.stdout:
             return Image.open(io.BytesIO(image_data.stdout))
     except Exception as e:
@@ -107,7 +111,6 @@ def process_clipboard_image():
     else:
         st.error("Platform not supported")
         return None
-
 # Ribbon for page navigation
 tabs = st.tabs(["Home", "Calculator","Help","About"])
 
