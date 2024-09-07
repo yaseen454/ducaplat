@@ -117,7 +117,8 @@ with tabs[1]:
                     result = reader.readtext(image_np)
                     # Extract text from the result
                     text = ' '.join([item[1] for item in result])
-                    st.session_state.extracted_texts.extend(text.split())
+                    formatted_text = ' '.join(text_lines)
+                    st.session_state.extracted_texts.extend(formatted_text.split())
                     st.write('Pasted image:')
                     st.image(image)
                 except Exception as e:
@@ -135,7 +136,7 @@ with tabs[1]:
                 st.session_state.extracted_texts = []
                 st.session_state.expanded_items = []
                 st.success("Extracted items cleared successfully!")
-                st.rerun()  # Force a rerun to update the extracted parts display
+                  # Force a rerun to update the extracted parts display
 
             # Show the "Calculate Profit" button if there's at least one extracted text
             if st.session_state.extracted_texts:
