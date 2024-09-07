@@ -103,17 +103,23 @@ with tabs[1]:
                 # Initialize EasyOCR reader
                 reader = easyocr.Reader(['en'])
 
+              # Perform OCR
                 try:
                     result = reader.readtext(image_np)
+                    # Extract text from the result, join it into lines and list them
                     texts = [item[1] for item in result]
-                except Exception as e:
-                    st.error(f"Error during OCR processing: {e}")
-                    texts = []  # Handle OCR failure by assigning an empty list
-                
-                if texts:  # Check if texts are not empty before extending
                     st.session_state.extracted_texts.extend(texts)
                     st.write('Pasted image:')
                     st.image(image)
+                except Exception as e:
+                    st.error(f"Error during OCR processing: {e}")
+
+            # Display extracted texts from clipboard images
+            if st.session_state.extracted_texts:
+                st.subheader("Extracted Prime Parts")
+                expanded_items = expand_list(st.session_state.extracted_texts)
+                st.session_state.expanded_items = expanded_items
+                st.write(st.session_state.expanded_items)
 
             # Show the "Calculate Profit" button if there's at least one extracted text
             if st.session_state.extracted_texts:
