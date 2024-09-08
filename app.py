@@ -22,6 +22,8 @@ if 'enable_plot' not in st.session_state:
     st.session_state.enable_plot = False
 if 'pasted_images' not in st.session_state:
     st.session_state.pasted_images = []
+if 'extracted_texts' not in st.session_state:
+    st.session_state.extracted_texts = []
 
 # Initialize EasyOCR reader
 reader = easyocr.Reader(['en'])
