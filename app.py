@@ -97,7 +97,7 @@ with tabs[1]:
                 else:
                     st.error("Unsupported image format.")
                     return
-             else:
+            else:
                 st.error("No image found in clipboard")
 
                 # Convert image to numpy array
