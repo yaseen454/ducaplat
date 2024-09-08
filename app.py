@@ -87,6 +87,8 @@ with tabs[1]:
             st.header("Extract Prime Parts from Clipboard Image")
 
             paste_result = pbutton("📋 Paste an image")
+            if paste_result.image_data is None:
+                st.error("No image found in clipboard")
             if paste_result.image_data is not None:
                 image_data = paste_result.image_data
                 if isinstance(image_data, bytes):
