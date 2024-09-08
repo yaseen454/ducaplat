@@ -118,10 +118,18 @@ with tabs[1]:
                 st.warning("No image found in the clipboard. Please copy an image and try again.")
 
             # Display extracted texts from clipboard images
+            # Update this section to prevent duplicate entries in the expanded list
             if st.session_state.extracted_texts:
                 st.subheader("Extracted Prime Parts")
-                expanded_items = expand_list(st.session_state.extracted_texts)
-                st.session_state.expanded_items = expanded_items
+                
+                # Check if the current extracted texts are already in the expanded list
+                current_text_set = set(st.session_state.extracted_texts)
+                existing_expanded_set = set(st.session_state.expanded_items)
+                
+                # Only add new, non-duplicate items to the expanded list
+                new_items = current_text_set - existing_expanded_set
+                st.session_state.expanded_items.extend(new_items)
+                
                 st.write(st.session_state.expanded_items)
 
             # Show the "Calculate Profit" button if there's at least one extracted text
