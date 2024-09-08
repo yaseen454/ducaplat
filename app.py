@@ -31,17 +31,17 @@ def process_image(image):
 
 
 def clipboard_code():
-    # Display or hide the paste button based on the 'done_pasting' state
-        paste_result = pbutton("📋 Paste an image",errors='No image found in clipboard')
+# Display or hide the paste button based on the 'done_pasting' state
+    paste_result = pbutton("📋 Paste an image",errors='No image found in clipboard')
 
-        if paste_result.image_data is not None:
-            st.session_state['images'].append(paste_result.image_data)
-            st.session_state['texts'].append(process_image(paste_result.image_data))
-            st.image(paste_result.image_data)
-        
-        # Button to indicate done pasting
-        if st.button('Done Pasting'):
-            st.session_state['done_pasting'] = True
+    if paste_result.image_data is not None:
+        st.session_state['images'].append(paste_result.image_data)
+        st.session_state['texts'].append(process_image(paste_result.image_data))
+        st.image(paste_result.image_data)
+    
+    # Button to indicate done pasting
+    if st.button('Done Pasting'):
+        st.session_state['done_pasting'] = True
 
     # Display images and extracted text only after done pasting
     if st.session_state.done_pasting:
