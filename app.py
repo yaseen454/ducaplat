@@ -8,8 +8,6 @@ import numpy as np
 import io
 
 # Initialize session state variables globally if they don't exist
-if 'extracted_texts' not in st.session_state:
-    st.session_state.extracted_texts = []
 if 'expanded_items' not in st.session_state:
     st.session_state.expanded_items = []
 if 'continue_checking' not in st.session_state:
@@ -22,6 +20,9 @@ if 'display_anova' not in st.session_state:
     st.session_state.display_anova = False
 if 'enable_plot' not in st.session_state:
     st.session_state.enable_plot = False
+
+# Initialize EasyOCR reader
+reader = easyocr.Reader(['en'])
 
 st.markdown("""
     <style>
@@ -86,8 +87,8 @@ with tabs[1]:
         def main2():
             st.header("Extract Prime Parts from Clipboard Image")
 
-            paste_result = pbutton("📋 Paste an image")
-           
+            paste_result = pbutton("📋 Paste an image")  # Ensure this is properly defined elsewhere
+            
             if paste_result.image_data is not None:
                 image_data = paste_result.image_data
                 if isinstance(image_data, bytes):
@@ -101,14 +102,16 @@ with tabs[1]:
                 # Convert image to numpy array
                 image_np = np.array(image)
 
-                # Initialize EasyOCR reader
-                reader = easyocr.Reader(['en'])
-
-              # Perform OCR
+                # Perform OCR
                 try:
                     result = reader.readtext(image_np)
                     # Extract text from the result, join it into lines and list them
                     texts = [item[1] for item in result]
+                    
+                    # Ensure session_state is initialized
+                    if 'extracted_texts' not in st.session_state:
+                        st.session_state.extracted_texts = []
+                    
                     st.session_state.extracted_texts.extend(texts)
                     st.write('Pasted image:')
                     st.image(image)
@@ -117,39 +120,7 @@ with tabs[1]:
             else:
                 st.warning("No image found in the clipboard. Please copy an image and try again.")
 
-            # Display extracted texts from clipboard images
-            # Update this section to prevent duplicate entries in the expanded list
-            if st.session_state.extracted_texts:
-                st.subheader("Extracted Prime Parts")
-                
-                # Check if the current extracted texts are already in the expanded list
-                current_text_set = set(st.session_state.extracted_texts)
-                existing_expanded_set = set(st.session_state.expanded_items)
-                
-                # Only add new, non-duplicate items to the expanded list
-                new_items = current_text_set - existing_expanded_set
-                st.session_state.expanded_items.extend(new_items)
-                
-                st.write(st.session_state.expanded_items)
-
-            # Show the "Calculate Profit" button if there's at least one extracted text
-            if st.session_state.extracted_texts:
-                if st.button("Calculate Profit"):
-                    dictionary = count_types(st.session_state.expanded_items)
-                    counts = count(dictionary)
-                    result = run_prime_calculator(
-                        counts[0], counts[1], counts[2], counts[3], counts[4],
-                        bypass=True, plot=st.session_state.enable_plot,
-                        calc_type=calc_type, display_anova=st.session_state.display_anova
-                    )
-                    st.write(result)
         main2()
-    # Add a "Restart" button to reset the session state
-    if st.button("Restart"):
-        st.session_state.extracted_texts.clear()
-        st.session_state.expanded_items.clear()
-        st.rerun()
-
 with tabs[2]:
     st.title('Tool Usage & Info')
     st.write("### Image Fetch Steps:")
