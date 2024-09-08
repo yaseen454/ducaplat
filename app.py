@@ -33,7 +33,7 @@ def clipboard_code():
     paste_result = pbutton("📋 Paste an image",errors='No image found in clipboard')
 
     if paste_result.image_data is not None:
-        st.session_state.texts = process_image(paste_result.image)
+        st.session_state.texts = process_image(paste_result.image_data)
         st.image(paste_result.image_data)
     
     # Button to indicate done pasting
