@@ -144,6 +144,11 @@ with tabs[1]:
                     )
                     st.write(result)
         main2()
+    # Add a "Restart" button to reset the session state
+    if st.button("Restart"):
+        st.session_state.extracted_texts.clear()
+        st.session_state.expanded_items.clear()
+        st.rerun()
 
 with tabs[2]:
     st.title('Tool Usage & Info')
