@@ -31,8 +31,8 @@ def process_image(image):
 
 
 def clipboard_code():
-    # Display the paste button only if not done pasting
-    if not st.session_state['done_pasting']:
+    # Display or hide the paste button based on the 'done_pasting' state
+    if not st.session_state.get('done_pasting', False):
         paste_result = pbutton("📋 Paste an image")
 
         if paste_result.image_data is not None:
@@ -45,13 +45,13 @@ def clipboard_code():
             st.session_state['done_pasting'] = True
 
     # Display images and extracted text only after done pasting
-    if st.session_state['done_pasting']:
+    if st.session_state.get('done_pasting', False):
         if st.session_state['images']:
             for idx, (image, text) in enumerate(zip(st.session_state['images'], st.session_state['texts'])):
                 st.image(image, caption=f"Image {idx + 1}", use_column_width=True)
                 st.write(f"Extracted Text {idx + 1}: {text}")
 
-        # Buttons for removing images/texts and resetting the state
+        # Buttons for managing images/texts and resetting the state
         col1, col2, col3 = st.columns(3)
         with col1:
             if st.button('Remove Last Image', disabled=not st.session_state['images']):
@@ -73,6 +73,7 @@ def clipboard_code():
             st.write("Current Extracted Texts:")
             for idx, text in enumerate(st.session_state['texts']):
                 st.write(f"Text {idx + 1}: {text}")
+
 
 
 # Initialize EasyOCR reader
