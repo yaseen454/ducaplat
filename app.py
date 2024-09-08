@@ -20,6 +20,8 @@ if 'display_anova' not in st.session_state:
     st.session_state.display_anova = False
 if 'enable_plot' not in st.session_state:
     st.session_state.enable_plot = False
+if 'pasted_images' not in st.session_state:
+    st.session_state.pasted_images = []
 
 # Initialize EasyOCR reader
 reader = easyocr.Reader(['en'])
