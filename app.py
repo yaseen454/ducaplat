@@ -8,24 +8,70 @@ import numpy as np
 import io
 
 # Initialize session state variables globally if they don't exist
-if 'expanded_items' not in st.session_state:
-    st.session_state.expanded_items = []
-if 'continue_checking' not in st.session_state:
-    st.session_state.continue_checking = True
-if 'calculation_done' not in st.session_state:
-    st.session_state.calculation_done = False
 if 'calc_type' not in st.session_state:
     st.session_state.calc_type = 1  # Initialize to 'narrow' by default
 if 'display_anova' not in st.session_state:
     st.session_state.display_anova = False
 if 'enable_plot' not in st.session_state:
     st.session_state.enable_plot = False
-if 'pasted_images' not in st.session_state:
-    st.session_state.pasted_images = []
-if 'extracted_texts' not in st.session_state:
-    st.session_state.extracted_texts = []
-if 'texts_per_image' not in st.session_state:
-    st.session_state.texts_per_image = []  # Track how many texts were extracted per image
+# Initialize session state for images and text
+if 'images' not in st.session_state:
+    st.session_state['images'] = []
+if 'texts' not in st.session_state:
+    st.session_state['texts'] = []
+if 'done_pasting' not in st.session_state:
+    st.session_state['done_pasting'] = False
+
+# Function to process images with EasyOCR
+def process_image(image):
+    # Convert PIL image to OpenCV format (numpy array)
+    image_np = np.array(image)
+    results = reader.readtext(image_np)
+    return " ".join([result[1] for result in results])
+
+
+def clipboard_code():
+        # Display or hide the paste button based on the 'done_pasting' state
+    if not st.session_state['done_pasting']:
+        paste_result = pbutton("📋 Paste an image")
+
+        if paste_result.image_data is not None:
+            st.session_state['images'].append(paste_result.image_data)
+            st.session_state['texts'].append(process_image(paste_result.image_data))
+
+        # Button to indicate done pasting
+        if st.button('Done Pasting'):
+            st.session_state['done_pasting'] = True
+
+    # Display images and extracted text only after done pasting
+    if st.session_state['done_pasting']:
+        if st.session_state['images']:
+            for idx, (image, text) in enumerate(zip(st.session_state['images'], st.session_state['texts'])):
+                st.image(image, caption=f"Image {idx + 1}")
+                st.write(f"Extracted Text {idx + 1}: {text}")
+
+        # Button to remove the last image
+        if st.button('Remove Last Image'):
+            if st.session_state['images']:
+                st.session_state['images'].pop()
+                st.session_state['texts'].pop()
+
+        # Button to remove all images
+        if st.button('Remove All Images'):
+            st.session_state['images'] = []
+            st.session_state['texts'] = []
+
+        # Display the current state of texts
+        if st.session_state['texts']:
+            st.write("Current Extracted Texts:")
+            for idx, text in enumerate(st.session_state['texts']):
+                st.write(f"Text {idx + 1}: {text}")
+
+    # Option to reset the app and start over
+    if st.button('Start Over'):
+        st.session_state['done_pasting'] = False
+        st.session_state['images'] = []
+        st.session_state['texts'] = []
 
 
 # Initialize EasyOCR reader
@@ -91,78 +137,7 @@ with tabs[1]:
             )
             st.write(calculator_results)
     elif input_method == 'Image from clipboard':
-        def main2():
-            st.header("Extract Prime Parts from Clipboard Image")
-
-            # Paste button to get image from clipboard
-            paste_result = pbutton("📋 Paste an image")
-
-            if paste_result.image_data is not None:
-                image_data = paste_result.image_data
-                if isinstance(image_data, bytes):
-                    image = Image.open(io.BytesIO(image_data))
-                elif isinstance(image_data, Image.Image):
-                    image = image_data
-                else:
-                    st.error("Unsupported image format.")
-                    return
-
-                # Convert image to numpy array
-                image_np = np.array(image)
-
-                # Perform OCR
-                try:
-                    result = reader.readtext(image_np)
-                    # Extract text from the result
-                    texts = [item[1] for item in result]
-
-                    # Append the text and image to session state
-                    st.session_state.extracted_texts.extend(texts)
-                    st.session_state.pasted_images.append(image)
-                    st.session_state.texts_per_image.append(len(texts))  # Track how many texts extracted
-
-                    # Display the pasted image
-                    st.write('Pasted image:')
-                    st.image(image)
-                except Exception as e:
-                    st.error(f"Error during OCR processing: {e}")
-
-            # **Make expand_list dynamic**
-            if st.session_state.extracted_texts:
-                expanded_texts = expand_list(st.session_state.extracted_texts)  # Reflect the current state
-                st.write("Extracted Text:")
-                st.write(expanded_texts)  # This should dynamically update
-
-            # Button to remove the last image and its associated texts
-            if st.button("Remove Last Image"):
-                if st.session_state.pasted_images:
-                    # Remove the last image
-                    st.session_state.pasted_images.pop()
-
-                    # Remove the last set of texts associated with the last image
-                    if st.session_state.texts_per_image:
-                        num_texts_to_remove = st.session_state.texts_per_image.pop()
-                        st.session_state.extracted_texts = st.session_state.extracted_texts[:-num_texts_to_remove]
-
-            # Button to remove all images and texts
-            if st.button("Remove All Images"):
-                st.session_state.pasted_images = []
-                st.session_state.extracted_texts = []
-                st.session_state.texts_per_image = []
-
-            # **Display dynamic text updates**
-            if st.session_state.extracted_texts:
-                expanded_texts = expand_list(st.session_state.extracted_texts)  # Always reflect the current state
-                st.write("Extracted Text:")
-                st.write(expanded_texts)  # Dynamically updates
-
-            # Display all pasted images
-            if st.session_state.pasted_images:
-                st.write("All pasted images:")
-                for img in st.session_state.pasted_images:
-                    st.image(img)
-
-        main2()
+        clipboard_code()
 with tabs[2]:
     st.title('Tool Usage & Info')
     st.write("### Image Fetch Steps:")
