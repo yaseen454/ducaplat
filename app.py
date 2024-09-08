@@ -137,7 +137,7 @@ with tabs[1]:
                 st.write("Extracted Text:")
                 st.write(expanded_texts)
 
-            # Button to remove the last image and its associated texts
+             # Button to remove the last image and its associated texts
             if st.button("Remove Last Image"):
                 if st.session_state.pasted_images:
                     # Remove the last image
@@ -148,20 +148,17 @@ with tabs[1]:
                         num_texts_to_remove = st.session_state.texts_per_image.pop()
                         st.session_state.extracted_texts = st.session_state.extracted_texts[:-num_texts_to_remove]
 
-                    # Update the expanded list after removing
-                    if st.session_state.extracted_texts:
-                        expanded_texts = expand_list(st.session_state.extracted_texts)
-                        st.write("Updated Extracted Text:")
-                        st.write(expanded_texts)
-                    else:
-                        st.write("No text available after removal.")
+                    # **Trigger a rerun to force re-render**
+                    st.rerun()
 
             # Button to remove all images and texts
             if st.button("Remove All Images"):
                 st.session_state.pasted_images = []
                 st.session_state.extracted_texts = []
                 st.session_state.texts_per_image = []
-                st.write("All images and texts removed.")
+
+                # **Trigger a rerun to force re-render**
+                st.rerun()
 
             # Display all pasted images
             if st.session_state.pasted_images:
