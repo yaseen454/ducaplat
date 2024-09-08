@@ -24,6 +24,9 @@ if 'pasted_images' not in st.session_state:
     st.session_state.pasted_images = []
 if 'extracted_texts' not in st.session_state:
     st.session_state.extracted_texts = []
+if 'texts_per_image' not in st.session_state:
+    st.session_state.texts_per_image = []  # Track how many texts were extracted per image
+
 
 # Initialize EasyOCR reader
 reader = easyocr.Reader(['en'])
@@ -116,6 +119,7 @@ with tabs[1]:
                     # Append the text and image to session state
                     st.session_state.extracted_texts.extend(texts)
                     st.session_state.pasted_images.append(image)
+                    st.session_state.texts_per_image.append(len(texts))  # Track how many texts extracted
 
                     # Display the pasted image
                     st.write('Pasted image:')
@@ -134,13 +138,19 @@ with tabs[1]:
             # Button to remove the last image and its associated texts
             if st.button("Remove Last Image"):
                 if st.session_state.pasted_images:
-                    st.session_state.pasted_images.pop()  # Remove the last image
-                    st.session_state.extracted_texts = st.session_state.extracted_texts[:-len(result)]  # Remove last texts associated with the image
+                    # Remove the last image
+                    st.session_state.pasted_images.pop()
+
+                    # Remove the last set of texts associated with the last image
+                    if st.session_state.texts_per_image:
+                        num_texts_to_remove = st.session_state.texts_per_image.pop()
+                        st.session_state.extracted_texts = st.session_state.extracted_texts[:-num_texts_to_remove]
 
             # Button to remove all images and texts
             if st.button("Remove All Images"):
                 st.session_state.pasted_images = []
                 st.session_state.extracted_texts = []
+                st.session_state.texts_per_image = []
 
             # Display all pasted images
             if st.session_state.pasted_images:
