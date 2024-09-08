@@ -31,7 +31,7 @@ def process_image(image):
 
 
 def clipboard_code():
-        # Display or hide the paste button based on the 'done_pasting' state
+    # Display the paste button only if not done pasting
     if not st.session_state['done_pasting']:
         paste_result = pbutton("📋 Paste an image")
 
@@ -39,7 +39,7 @@ def clipboard_code():
             st.session_state['images'].append(paste_result.image_data)
             st.session_state['texts'].append(process_image(paste_result.image_data))
             st.image(paste_result.image_data)
-
+        
         # Button to indicate done pasting
         if st.button('Done Pasting'):
             st.session_state['done_pasting'] = True
@@ -48,30 +48,31 @@ def clipboard_code():
     if st.session_state['done_pasting']:
         if st.session_state['images']:
             for idx, (image, text) in enumerate(zip(st.session_state['images'], st.session_state['texts'])):
+                st.image(image, caption=f"Image {idx + 1}", use_column_width=True)
                 st.write(f"Extracted Text {idx + 1}: {text}")
 
-        # Button to remove the last image
-        if st.button('Remove Last Image'):
-            if st.session_state['images']:
-                st.session_state['images'].pop()
-                st.session_state['texts'].pop()
+        # Buttons for removing images/texts and resetting the state
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            if st.button('Remove Last Image', disabled=not st.session_state['images']):
+                if st.session_state['images']:
+                    st.session_state['images'].pop()
+                    st.session_state['texts'].pop()
+        with col2:
+            if st.button('Remove All Images', disabled=not st.session_state['images']):
+                st.session_state['images'] = []
+                st.session_state['texts'] = []
+        with col3:
+            if st.button('Start Over'):
+                st.session_state['done_pasting'] = False
+                st.session_state['images'] = []
+                st.session_state['texts'] = []
 
-        # Button to remove all images
-        if st.button('Remove All Images'):
-            st.session_state['images'] = []
-            st.session_state['texts'] = []
-
-        # Display the current state of texts
+        # Display the current state of extracted texts
         if st.session_state['texts']:
             st.write("Current Extracted Texts:")
             for idx, text in enumerate(st.session_state['texts']):
                 st.write(f"Text {idx + 1}: {text}")
-
-    # Option to reset the app and start over
-    if st.button('Start Over'):
-        st.session_state['done_pasting'] = False
-        st.session_state['images'] = []
-        st.session_state['texts'] = []
 
 
 # Initialize EasyOCR reader
