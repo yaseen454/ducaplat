@@ -15,8 +15,6 @@ if 'display_anova' not in st.session_state:
 if 'enable_plot' not in st.session_state:
     st.session_state.enable_plot = False
 # Initialize session state for images and text
-if 'images' not in st.session_state:
-    st.session_state['images'] = []
 if 'texts' not in st.session_state:
     st.session_state['texts'] = []
 if 'done_pasting' not in st.session_state:
@@ -35,8 +33,7 @@ def clipboard_code():
     paste_result = pbutton("📋 Paste an image",errors='No image found in clipboard')
 
     if paste_result.image_data is not None:
-        st.session_state['images'].append(paste_result.image_data)
-        st.session_state['texts'].append(process_image(paste_result.image_data))
+        st.session_state.texts = process_image(paste_result.image)
         st.image(paste_result.image_data)
     
     # Button to indicate done pasting
@@ -45,10 +42,9 @@ def clipboard_code():
 
     # Display images and extracted text only after done pasting
     if st.session_state.done_pasting:
-        if st.session_state['images']:
-            for idx, (image, text) in enumerate(zip(st.session_state['images'], st.session_state['texts'])):
-                st.image(image, caption=f"Image {idx + 1}", use_column_width=True)
-                st.write(f"Extracted Text {idx + 1}: {text}")
+        if st.session_state['texts']:
+            for idx, text in enumerate(st.session_state['texts']):
+            st.write(f"Extracted Text {idx + 1}: {text}")
 
         # Buttons for managing images/texts and resetting the state
         col1, col2, col3 = st.columns(3)
