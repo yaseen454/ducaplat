@@ -32,8 +32,7 @@ def process_image(image):
 
 def clipboard_code():
     # Display or hide the paste button based on the 'done_pasting' state
-    if not st.session_state.get('done_pasting', False):
-        paste_result = pbutton("📋 Paste an image")
+        paste_result = pbutton("📋 Paste an image",errors='No image found in clipboard')
 
         if paste_result.image_data is not None:
             st.session_state['images'].append(paste_result.image_data)
@@ -45,7 +44,7 @@ def clipboard_code():
             st.session_state['done_pasting'] = True
 
     # Display images and extracted text only after done pasting
-    if st.session_state.get('done_pasting', False):
+    if st.session_state.done_pasting:
         if st.session_state['images']:
             for idx, (image, text) in enumerate(zip(st.session_state['images'], st.session_state['texts'])):
                 st.image(image, caption=f"Image {idx + 1}", use_column_width=True)
