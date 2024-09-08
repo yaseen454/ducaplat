@@ -126,18 +126,14 @@ with tabs[1]:
                     st.image(image)
                 except Exception as e:
                     st.error(f"Error during OCR processing: {e}")
-            else:
-                # Ensure no accidental clearing of data
-                st.warning("No image found in the clipboard. Please copy an image and try again.")
-                return  # Exit the function if no valid image is pasted
 
-            # Display extracted texts dynamically using expand_list function
+            # **Make expand_list dynamic**
             if st.session_state.extracted_texts:
-                expanded_texts = expand_list(st.session_state.extracted_texts)
+                expanded_texts = expand_list(st.session_state.extracted_texts)  # Reflect the current state
                 st.write("Extracted Text:")
-                st.write(expanded_texts)
+                st.write(expanded_texts)  # This should dynamically update
 
-             # Button to remove the last image and its associated texts
+            # Button to remove the last image and its associated texts
             if st.button("Remove Last Image"):
                 if st.session_state.pasted_images:
                     # Remove the last image
@@ -148,17 +144,17 @@ with tabs[1]:
                         num_texts_to_remove = st.session_state.texts_per_image.pop()
                         st.session_state.extracted_texts = st.session_state.extracted_texts[:-num_texts_to_remove]
 
-                    # **Trigger a rerun to force re-render**
-                    st.rerun()
-
             # Button to remove all images and texts
             if st.button("Remove All Images"):
                 st.session_state.pasted_images = []
                 st.session_state.extracted_texts = []
                 st.session_state.texts_per_image = []
 
-                # **Trigger a rerun to force re-render**
-                st.rerun()
+            # **Display dynamic text updates**
+            if st.session_state.extracted_texts:
+                expanded_texts = expand_list(st.session_state.extracted_texts)  # Always reflect the current state
+                st.write("Extracted Text:")
+                st.write(expanded_texts)  # Dynamically updates
 
             # Display all pasted images
             if st.session_state.pasted_images:
