@@ -97,8 +97,6 @@ with tabs[1]:
                 else:
                     st.error("Unsupported image format.")
                     return
-            else:
-                st.error("No image found in clipboard")
 
                 # Convert image to numpy array
                 image_np = np.array(image)
@@ -116,6 +114,8 @@ with tabs[1]:
                     st.image(image)
                 except Exception as e:
                     st.error(f"Error during OCR processing: {e}")
+            else:
+                st.warning("No image found in the clipboard. Please copy an image and try again.")
 
             # Display extracted texts from clipboard images
             if st.session_state.extracted_texts:
