@@ -87,8 +87,9 @@ with tabs[1]:
         def main2():
             st.header("Extract Prime Parts from Clipboard Image")
 
-            paste_result = pbutton("📋 Paste an image")  # Ensure this is properly defined elsewhere
-            
+            # Paste button to get image from clipboard
+            paste_result = pbutton("📋 Paste an image")
+
             if paste_result.image_data is not None:
                 image_data = paste_result.image_data
                 if isinstance(image_data, bytes):
@@ -105,20 +106,43 @@ with tabs[1]:
                 # Perform OCR
                 try:
                     result = reader.readtext(image_np)
-                    # Extract text from the result, join it into lines and list them
+                    # Extract text from the result
                     texts = [item[1] for item in result]
-                    
-                    # Ensure session_state is initialized
-                    if 'extracted_texts' not in st.session_state:
-                        st.session_state.extracted_texts = []
-                    
+
+                    # Append the text and image to session state
                     st.session_state.extracted_texts.extend(texts)
+                    st.session_state.pasted_images.append(image)
+
+                    # Display the pasted image
                     st.write('Pasted image:')
                     st.image(image)
                 except Exception as e:
                     st.error(f"Error during OCR processing: {e}")
             else:
                 st.warning("No image found in the clipboard. Please copy an image and try again.")
+
+            # Display extracted texts dynamically using expand_list function
+            if st.session_state.extracted_texts:
+                expanded_texts = expand_list(st.session_state.extracted_texts)
+                st.write("Extracted Text:")
+                st.write(expanded_texts)
+
+            # Button to remove the last image and its associated texts
+            if st.button("Remove Last Image"):
+                if st.session_state.pasted_images:
+                    st.session_state.pasted_images.pop()  # Remove the last image
+                    st.session_state.extracted_texts = st.session_state.extracted_texts[:-len(result)]  # Remove last texts associated with the image
+
+            # Button to remove all images and texts
+            if st.button("Remove All Images"):
+                st.session_state.pasted_images = []
+                st.session_state.extracted_texts = []
+
+            # Display all pasted images
+            if st.session_state.pasted_images:
+                st.write("All pasted images:")
+                for img in st.session_state.pasted_images:
+                    st.image(img)
 
         main2()
 with tabs[2]:
