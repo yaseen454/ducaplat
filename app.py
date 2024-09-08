@@ -38,6 +38,7 @@ def clipboard_code():
         if paste_result.image_data is not None:
             st.session_state['images'].append(paste_result.image_data)
             st.session_state['texts'].append(process_image(paste_result.image_data))
+            st.image(paste_result.image_data)
 
         # Button to indicate done pasting
         if st.button('Done Pasting'):
@@ -47,7 +48,6 @@ def clipboard_code():
     if st.session_state['done_pasting']:
         if st.session_state['images']:
             for idx, (image, text) in enumerate(zip(st.session_state['images'], st.session_state['texts'])):
-                st.image(image, caption=f"Image {idx + 1}")
                 st.write(f"Extracted Text {idx + 1}: {text}")
 
         # Button to remove the last image
