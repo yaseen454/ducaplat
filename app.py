@@ -87,8 +87,7 @@ with tabs[1]:
             st.header("Extract Prime Parts from Clipboard Image")
 
             paste_result = pbutton("📋 Paste an image")
-            if paste_result.image_data is None:
-                st.error("No image found in clipboard")
+           
             if paste_result.image_data is not None:
                 image_data = paste_result.image_data
                 if isinstance(image_data, bytes):
@@ -98,6 +97,8 @@ with tabs[1]:
                 else:
                     st.error("Unsupported image format.")
                     return
+             else:
+                st.error("No image found in clipboard")
 
                 # Convert image to numpy array
                 image_np = np.array(image)
