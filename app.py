@@ -37,7 +37,7 @@ def clipboard_code():
     paste_result = pbutton("📋 Paste an image",errors='No image found in clipboard')
 
     if paste_result.image_data is not None:
-        st.session_state.texts.append(process_image(paste_result.image_data))
+        st.session_state.texts = process_image(paste_result.image_data)
         if not st.session_state['start_over']:
             st.image(paste_result.image_data)
             st.session_state['images'].append(paste_result.image_data)
