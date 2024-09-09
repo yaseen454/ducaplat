@@ -64,11 +64,6 @@ def clipboard_code():
                 st.session_state['images'] = []
                 st.session_state['texts'] = []
 
-        # Display the current state of extracted texts
-        if st.session_state['texts']:
-            st.write("Current Extracted Texts:")
-            for idx, text in enumerate(st.session_state['texts']):
-                st.write(f"Text {idx + 1}: {text}")
 
 
 
