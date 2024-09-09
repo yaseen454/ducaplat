@@ -63,7 +63,7 @@ def clipboard_code():
                     st.session_state.images.pop()
                     st.session_state.texts.pop()
                 st.session_state.done_pasting = False  # Allow further pasting if necessary
-                st.experimental_rerun()  # Refresh the page after removing
+                st.rerun()  # Refresh the page after removing
 
         with col2:
             if st.button('Remove All Images', disabled=not st.session_state.images):
