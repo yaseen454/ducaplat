@@ -32,16 +32,20 @@ def process_image(image):
     return " ".join([result[1] for result in results])
 
 def clipboard_code():
-    paste_result = pbutton("📋 Paste an image")
+    paste_result = pbutton("📋 Paste an image", errors='No image found in clipboard')
 
+    # Only process if image data is found
     if paste_result.image_data is not None:
-        # Append image and text to session state lists
-        st.session_state.images.append(paste_result.image_data)
-        st.session_state.texts.append(process_image(paste_result.image_data))
-        # Display the pasted image immediately
-        st.image(paste_result.image_data)
+        # Ensure we don't accidentally append the same image multiple times
+        if paste_result.image_data not in st.session_state.images:
+            # Append image and its OCR text to session state lists
+            st.session_state.images.append(paste_result.image_data)
+            st.session_state.texts.append(process_image(paste_result.image_data))
+            st.image(paste_result.image_data)
+        else:
+            st.warning("This image has already been pasted.")
     else:
-        st.error('No image found in clipboard')
+        st.error('No image found in clipboard)
 
     if st.button('Done Pasting'):
         st.session_state.done_pasting = True
@@ -58,17 +62,22 @@ def clipboard_code():
                 if st.session_state.images:
                     st.session_state.images.pop()
                     st.session_state.texts.pop()
+                st.session_state.done_pasting = False  # Allow further pasting if necessary
+                st.experimental_rerun()  # Refresh the page after removing
+
         with col2:
             if st.button('Remove All Images', disabled=not st.session_state.images):
                 st.session_state.images = []
                 st.session_state.texts = []
+                st.session_state.done_pasting = False
+                st.experimental_rerun()  # Refresh the page after removing
+
         with col3:
             if st.button('Start Over'):
                 st.session_state.images = []
                 st.session_state.texts = []
                 st.session_state.done_pasting = False
-                st.rerun()
-
+                st.rerun() 
 
 
 # Initialize EasyOCR reader
