@@ -43,8 +43,7 @@ def clipboard_code():
     # Display images and extracted text only after done pasting
     if st.session_state.done_pasting:
         if st.session_state['texts']:
-            for text in st.session_state['texts']:
-                st.write(f"Extracted Text: {text}")
+            st.write(f"Extracted Text: {text}")
 
         # Buttons for managing images/texts and resetting the state
         col1, col2, col3 = st.columns(3)
