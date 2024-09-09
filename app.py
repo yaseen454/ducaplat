@@ -45,7 +45,7 @@ def clipboard_code():
         else:
             st.warning("This image has already been pasted.")
     else:
-        st.error('No image found in clipboard)
+        st.error('No image found in clipboard')
 
     if st.button('Done Pasting'):
         st.session_state.done_pasting = True
