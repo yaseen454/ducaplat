@@ -70,7 +70,7 @@ def clipboard_code():
                 st.session_state.images = []
                 st.session_state.texts = []
                 st.session_state.done_pasting = False
-                st.experimental_rerun()  # Refresh the page after removing
+                st.rerun()  # Refresh the page after removing
 
         with col3:
             if st.button('Start Over'):
