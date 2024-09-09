@@ -109,7 +109,7 @@ with tabs[0]:
 
 with tabs[1]:
     st.title("Prime Item Trading Calculator")
-    calc_type = st.sidebar.selectbox("Select Calculation Type", ["broad", "narrow"])
+    calc_type = st.sidebar.selectbox("Select Calculation Type", ["narrow", "broad"])
     calc_type = 2 if calc_type == 'broad' else 1
     st.session_state.display_anova = st.sidebar.checkbox("Display ANOVA results",
                                                          value=st.session_state.display_anova)
