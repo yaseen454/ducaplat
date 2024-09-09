@@ -32,19 +32,25 @@ def process_image(image):
     return " ".join([result[1] for result in results])
 
 def clipboard_code():
-    if not st.session_state.done_pasting:
-        paste_result = pbutton("📋 Paste an image", errors='No image found in clipboard')
-        
-        if paste_result.image_data is not None:
-            st.session_state.images.append(paste_result.image_data)
-            st.session_state.texts.append(process_image(paste_result.image_data))
-            st.image(paste_result.image_data)
+    paste_result = pbutton("📋 Paste an image")
 
-        if st.button('Done Pasting'):
-            st.session_state.done_pasting = True
-
+    if paste_result.image_data is not None:
+        # Append image and text to session state lists
+        st.session_state.images.append(paste_result.image_data)
+        st.session_state.texts.append(process_image(paste_result.image_data))
+        # Display the pasted image immediately
+        st.image(paste_result.image_data)
     else:
-        st.write(f"Extracted Text: {st.session_state.texts[-1]}")
+        st.error('No image found in clipboard')
+
+    if st.button('Done Pasting'):
+        st.session_state.done_pasting = True
+    
+    if st.session_state.done_pasting and st.session_state.images:
+        # Display all images and corresponding texts
+        for idx, (image, text) in enumerate(zip(st.session_state.images, st.session_state.texts)):
+            st.image(image, caption=f"Image {idx+1}")
+            st.write(f"Extracted Text {idx+1}: {text}")
         
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -52,18 +58,17 @@ def clipboard_code():
                 if st.session_state.images:
                     st.session_state.images.pop()
                     st.session_state.texts.pop()
-                st.session_state.done_pasting = False
         with col2:
             if st.button('Remove All Images', disabled=not st.session_state.images):
                 st.session_state.images = []
                 st.session_state.texts = []
-                st.session_state.done_pasting = False
         with col3:
             if st.button('Start Over'):
                 st.session_state.images = []
                 st.session_state.texts = []
                 st.session_state.done_pasting = False
                 st.rerun()
+
 
 
 # Initialize EasyOCR reader
