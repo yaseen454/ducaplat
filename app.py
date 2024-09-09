@@ -19,6 +19,8 @@ if 'texts' not in st.session_state:
     st.session_state['texts'] = []
 if 'done_pasting' not in st.session_state:
     st.session_state['done_pasting'] = False
+if 'images' not in st.session_state:
+    st.session_state['images'] = []
 
 # Function to process images with EasyOCR
 def process_image(image):
