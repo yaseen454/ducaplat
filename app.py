@@ -147,7 +147,7 @@ with tabs[1]:
         st.markdown("<h2 style='color: red;'>🚧 WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
 with tabs[2]:
     st.title('Tool Usage & Info')
-    st.markdown("<h2 style='color: red;'>🚧 WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color: red;'>🚧 Image from clipboard: WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
     st.write("### Image Fetch Steps:")
     st.write('_You can use images instead of manually inputting and counting '
              'your prime parts yourself to save up some time_')
