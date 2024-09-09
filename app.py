@@ -67,6 +67,7 @@ def clipboard_code():
                     st.session_state['done_pasting'] = False
                     st.session_state['images'] = []
                     st.session_state['texts'] = []
+                    st.session_state['start_over'] = True
                     st.rerun()
     
 
