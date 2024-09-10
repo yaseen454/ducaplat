@@ -114,12 +114,6 @@ st.markdown("""
 # Ribbon for page navigation
 tabs = st.tabs(["Home", "Calculator", "Help", "About"])
 
-st.sidebar.header("Input Method")
-input_method = st.sidebar.radio(
-    "Choose how you want to input prime parts:",
-    ("Manual Input", "Image from clipboard")
-)
-
 with tabs[0]:
     # Large title (website name) before the main title with dark gold color and custom font
     st.markdown("<h1 class='large-title'>DucaPlat</h1>", unsafe_allow_html=True)
