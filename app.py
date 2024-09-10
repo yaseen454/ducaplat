@@ -13,6 +13,15 @@ if 'display_anova' not in st.session_state:
     st.session_state.display_anova = False
 if 'enable_plot' not in st.session_state:
     st.session_state.enable_plot = False
+if 'expanded_items' not in st.session_state:
+    st.session_state.expanded_items = []
+# Store the pasted images and extracted text
+if 'images' not in st.session_state:
+    st.session_state.images = []
+if 'extracted_text' not in st.session_state:
+    st.session_state.extracted_text = []
+if 'processed' not in st.session_state:
+    st.session_state.processed = False 
 
 
 st.sidebar.title("Settings")
@@ -35,17 +44,124 @@ def load_ocr_model():
 
 reader = load_ocr_model()
 
-# Function to process images with EasyOCR (cached to avoid repeated expensive computation)
-@st.cache_data
-def process_image(image):
-    image_np = np.array(image)
-    results = reader.readtext(image_np)
-    return " ".join([result[1] for result in results])
-
 # Cache the dataframe creation (if this is time-consuming)
 @st.cache_data
 def get_data():
     return return_df()
+
+
+def image_exists(new_img_data):
+    for img in st.session_state.images:
+        if np.array_equal(new_img_data, img):
+            return True
+    return False
+# Function to handle pasting images
+# Function to handle pasting images
+def handle_paste_images():
+    paste_result = pbutton("📋 Paste an image")  # Use pbutton to paste the image
+
+    # Check if there's valid pasted image data
+    if paste_result.image_data is not None:
+        # Convert to numpy array
+        img_np = np.array(paste_result.image_data)
+
+        # Check if the image has already been added
+        if not image_exists(img_np):
+            st.session_state.images.append(img_np)
+            st.write('Pasted image:')
+            st.image(paste_result.image_data)
+
+            # Reset the processed flag since a new image has been added
+            st.session_state.processed = False
+        # else:
+        #     st.warning("This image has already been added.")
+
+
+# Function to process images with EasyOCR and extract text
+def process_images():
+    combined_text = []
+    print(st.session_state.images)
+    for img in st.session_state.images:
+        st.write("Processing image with EasyOCR...")
+        extracted_text = reader.readtext(img,detail=0)  # Extract text
+        combined_text.extend(extracted_text)
+
+    st.session_state.extracted_text = combined_text
+    st.write("Extracted Text:")
+    st.write(combined_text)
+
+
+# Function to remove last n items from extracted text
+def remove_last_n_items(n):
+    if len(st.session_state.extracted_text) >= n:
+        st.session_state.extracted_text = st.session_state.extracted_text[:-n]
+    else:
+        st.session_state.extracted_text = []
+    st.write(f"Text after removing last {n} items:")
+    st.write(st.session_state.extracted_text)
+
+# Function to reset all images and start over
+def reset_images():
+    st.session_state.images = []
+    st.session_state.extracted_text = []
+    st.session_state.processed = False
+    st.success("All images have been reset. You can start over.")
+
+
+def clipboard_code():
+    # App title
+    st.title("Paste Images for OCR Processing")
+
+    # Paste images section
+    handle_paste_images()
+
+    # Button to process images once done pasting
+    if st.button("Done Pasting"):
+        if st.session_state.images:
+            # Only process images if they haven't been processed yet (flag is False)
+            if not st.session_state.processed:
+                process_images()
+                st.session_state.processed = True  # Set the flag to prevent reprocessing
+            else:
+                st.write("Images have already been processed.")
+        else:
+            st.error("No images found. Please paste at least one image.")
+
+    # Display text and provide option to remove last n items or continue
+    if st.session_state.extracted_text:
+        st.write("Modify Extracted Text:")
+
+        # Add option to choose between actions
+        action = st.radio("Choose an action:", ("Remove Last N Items", "Calculate Profit", "Reset All"))
+
+        if action == "Remove Last N Items":
+            # If the user chooses to remove last n items, show number input and remove button
+            n_to_remove = st.number_input("Enter number of items to remove from the end", min_value=1, value=1,
+                                          step=1)
+
+            if st.button("Remove Last N Items"):
+                remove_last_n_items(int(n_to_remove))
+
+        elif action == "Calculate Profit":
+            if st.session_state.extracted_text:
+                st.write(st.session_state.extracted_text)
+                expanded_text = expand_list(st.session_state.extracted_text)
+                st.session_state.expanded_items = expanded_text
+                d = dict_count(st.session_state.expanded_items)
+                st.write(f'Expanded items {expanded_text}')
+                result = run_prime_calculator(d[0],
+                                              d[1],
+                                              d[2],
+                                              d[3],
+                                              d[4], bypass=True, calc_type=st.session_state.calc_type,
+                                              plot=st.session_state.enable_plot,
+                                              display_anova=st.session_state.display_anova)
+        elif action == 'Reset All':
+            st.write('Press confirm to reset')
+            if st.button("Confirm"):
+                reset_images()
+
+
     
 # def clipboard_code():
 #     paste_result = pbutton("📋 Paste an image", errors='No image found in clipboard')
@@ -160,8 +276,8 @@ with tabs[1]:
             # Show results
             st.write(calculator_results)
     elif input_method == 'Image from clipboard':
-        # clipboard_code()
-        st.markdown("<h2 style='color: red;'>🚧 WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
+        clipboard_code()
+        # st.markdown("<h2 style='color: red;'>🚧 WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
 with tabs[2]:
     st.title('Tool Usage & Info')
     st.markdown("<h2 style='color: red;'>🚧 Image from clipboard: WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
