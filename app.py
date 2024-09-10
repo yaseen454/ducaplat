@@ -14,7 +14,7 @@ if 'display_anova' not in st.session_state:
 if 'enable_plot' not in st.session_state:
     st.session_state.enable_plot = False
 if 'maintenance_mode' not in st.session_state:
-    st.session_state.maintenance_mode = True  # Set to True to enable maintenance mode
+    st.session_state.maintenance_mode = False  # Set to True to enable maintenance mode
 
 # Check if the app is in maintenance mode
 if st.session_state.maintenance_mode:
