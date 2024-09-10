@@ -237,7 +237,7 @@ with tabs[0]:
     # Large title (website name) before the main title with dark gold color and custom font
     st.markdown("<h1 class='large-title'>DucaPlat</h1>", unsafe_allow_html=True)
     st.title("Warframe Prime Item Trading Calculator")
-    st.success("🎉 **Image Clipboard is now available!** 🎉")
+    st.success("🎉 **Image Clipboard is now available!** 🎉 _check Help for more info._")
     st.write("_Welcome to **DucaPlat**! the Warframe Prime Item Trading Calculator. "
              "This tool allows you to calculate the profit from trading prime parts in Warframe._")
     st.write("_You can choose to input your prime parts either manually or "
