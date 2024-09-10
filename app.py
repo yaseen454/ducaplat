@@ -13,14 +13,15 @@ if 'display_anova' not in st.session_state:
     st.session_state.display_anova = False
 if 'enable_plot' not in st.session_state:
     st.session_state.enable_plot = False
-
+    
+st.sidebar.title("Settings")
 st.sidebar.header("Input Method")
 input_method = st.sidebar.radio(
     "Choose how you want to input prime parts:",
     ("Manual Input", "Image from clipboard")
 )
 # Sidebar settings for calculation type and options
-st.sidebar.title("Settings")
+
 calc_type = st.sidebar.selectbox("Select Calculation Type", ["narrow", "broad"])
 st.session_state.calc_type = 2 if calc_type == 'broad' else 1
 st.session_state.display_anova = st.sidebar.checkbox("Display ANOVA results", value=st.session_state.display_anova)
@@ -131,8 +132,8 @@ with tabs[0]:
     st.dataframe(df)
 
 with tabs[1]:
-    if input_method == 'Manul Input':
-        st.title("Prime Item Trading Calculator")
+    st.title("Prime Item Trading Calculator")
+    if input_method == "Manual Input":
         # Input fields for prime part quantities
         bronze15 = st.number_input("Bronze15", min_value=0, value=0, step=1)
         bronze25 = st.number_input("Bronze25", min_value=0, value=0, step=1)
