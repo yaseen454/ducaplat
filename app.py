@@ -111,6 +111,7 @@ def reset_images():
 def clipboard_code():
     # App title
     st.write("**Important Notes:** _make sure the image you copy is not bad in quality, where text is clear and visible so the ocr can run properly_")
+    st.write("**Pasting does not support mobile browsers & firefox**")
 
     # Paste images section
     handle_paste_images()
