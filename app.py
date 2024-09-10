@@ -14,13 +14,14 @@ if 'display_anova' not in st.session_state:
 if 'enable_plot' not in st.session_state:
     st.session_state.enable_plot = False
 
-# Initialize session state for images and text
-if 'texts' not in st.session_state:
-    st.session_state.texts = []
-if 'done_pasting' not in st.session_state:
-    st.session_state.done_pasting = False
-if 'images' not in st.session_state:
-    st.session_state.images = []
+
+# Sidebar settings for calculation type and options
+st.sidebar.title("Settings")
+calc_type = st.sidebar.selectbox("Select Calculation Type", ["narrow", "broad"])
+st.session_state.calc_type = 2 if calc_type == 'broad' else 1
+st.session_state.display_anova = st.sidebar.checkbox("Display ANOVA results", value=st.session_state.display_anova)
+st.session_state.enable_plot = st.sidebar.checkbox("Enable Plotting", value=st.session_state.enable_plot)
+
 # Cache the OCR model loading
 @st.cache_resource
 def load_ocr_model():
@@ -133,26 +134,30 @@ with tabs[0]:
 
 with tabs[1]:
     st.title("Prime Item Trading Calculator")
-    calc_type = st.sidebar.selectbox("Select Calculation Type", ["narrow", "broad"])
-    calc_type = 2 if calc_type == 'broad' else 1
-    st.session_state.display_anova = st.sidebar.checkbox("Display ANOVA results",
-                                                         value=st.session_state.display_anova)
-    st.session_state.enable_plot = st.sidebar.checkbox("Enable Plotting", value=st.session_state.enable_plot)
-
-    if input_method == "Manual Input":
-        st.header("Input Prime Parts")
-        bronze15 = st.number_input("Bronze15", min_value=0, value=0)
-        bronze25 = st.number_input("Bronze25", min_value=0, value=0)
-        silver45 = st.number_input("Silver45", min_value=0, value=0)
-        silver65 = st.number_input("Silver65", min_value=0, value=0)
-        gold = st.number_input("Gold", min_value=0, value=0)
-        if st.button("Calculate Profit"):
-            with st.spinner('Calculating...'):
-                calculator_results = run_prime_calculator(
-                    bronze15=bronze15, bronze25=bronze25, silver45=silver45, silver65=silver65, gold=gold, bypass=True,
-                    plot=st.session_state.enable_plot, calc_type=calc_type, display_anova=st.session_state.display_anova
-                )
-            st.write(calculator_results)
+    # Input fields for prime part quantities
+    bronze15 = st.number_input("Bronze15", min_value=0, value=0, step=1)
+    bronze25 = st.number_input("Bronze25", min_value=0, value=0, step=1)
+    silver45 = st.number_input("Silver45", min_value=0, value=0, step=1)
+    silver65 = st.number_input("Silver65", min_value=0, value=0, step=1)
+    gold = st.number_input("Gold", min_value=0, value=0, step=1)
+    
+    # Button to explicitly trigger calculation
+    if st.button("Calculate Profit"):
+        with st.spinner('Calculating...'):
+            # Call the calculation function when user presses the button
+            calculator_results = run_prime_calculator(
+                bronze15=bronze15, 
+                bronze25=bronze25, 
+                silver45=silver45, 
+                silver65=silver65, 
+                gold=gold,
+                bypass=True,
+                plot=st.session_state.enable_plot,
+                calc_type=st.session_state.calc_type,
+                display_anova=st.session_state.display_anova
+            )
+        # Show results
+        st.write(calculator_results)
     elif input_method == 'Image from clipboard':
         # clipboard_code()
         st.markdown("<h2 style='color: red;'>🚧 WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
