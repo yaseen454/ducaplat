@@ -21,67 +21,76 @@ if 'done_pasting' not in st.session_state:
     st.session_state.done_pasting = False
 if 'images' not in st.session_state:
     st.session_state.images = []
+# Cache the OCR model loading
+@st.cache_resource
+def load_ocr_model():
+    return easyocr.Reader(['en'])
 
-# Initialize EasyOCR reader
-reader = easyocr.Reader(['en'])
+reader = load_ocr_model()
 
-# Function to process images with EasyOCR
+# Function to process images with EasyOCR (cached to avoid repeated expensive computation)
+@st.cache_data
 def process_image(image):
     image_np = np.array(image)
     results = reader.readtext(image_np)
     return " ".join([result[1] for result in results])
 
-def clipboard_code():
-    paste_result = pbutton("📋 Paste an image", errors='No image found in clipboard')
-
-    # Only process if image data is found
-    if paste_result.image_data is not None:
-        # Ensure we don't accidentally append the same image multiple times
-        if paste_result.image_data not in st.session_state.images:
-            # Append image and its OCR text to session state lists
-            st.session_state.images.append(paste_result.image_data)
-            st.session_state.texts.append(process_image(paste_result.image_data))
-            st.image(paste_result.image_data)
-        else:
-            st.warning("This image has already been pasted.")
-    else:
-        st.error('No image found in clipboard')
-
-    if st.button('Done Pasting'):
-        st.session_state.done_pasting = True
+# Cache the dataframe creation (if this is time-consuming)
+@st.cache_data
+def get_data():
+    return return_df()
     
-    if st.session_state.done_pasting and st.session_state.images:
-        # Display all images and corresponding texts
-        for idx, (image, text) in enumerate(zip(st.session_state.images, st.session_state.texts)):
-            st.image(image, caption=f"Image {idx+1}")
-            st.write(f"Extracted Text {idx+1}: {text}")
+# def clipboard_code():
+#     paste_result = pbutton("📋 Paste an image", errors='No image found in clipboard')
+
+#     # Only process if image data is found
+#     if paste_result.image_data is not None:
+#         # Ensure we don't accidentally append the same image multiple times
+#         if paste_result.image_data not in st.session_state.images:
+#             # Append image and its OCR text to session state lists
+#             st.session_state.images.append(paste_result.image_data)
+#             st.session_state.texts.append(process_image(paste_result.image_data))
+#             st.image(paste_result.image_data)
+#         else:
+#             st.warning("This image has already been pasted.")
+#     else:
+#         st.error('No image found in clipboard')
+
+#     if st.button('Done Pasting'):
+#         st.session_state.done_pasting = True
+    
+#     if st.session_state.done_pasting and st.session_state.images:
+#         # Display all images and corresponding texts
+#         for idx, (image, text) in enumerate(zip(st.session_state.images, st.session_state.texts)):
+#             st.image(image, caption=f"Image {idx+1}")
+#             st.write(f"Extracted Text {idx+1}: {text}")
         
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            if st.button('Remove Last Image', disabled=not st.session_state.images):
-                if st.session_state.images:
-                    st.session_state.images.pop()
-                    st.session_state.texts.pop()
-                st.session_state.done_pasting = False  # Allow further pasting if necessary
-                st.rerun()  # Refresh the page after removing
+#         col1, col2, col3 = st.columns(3)
+#         with col1:
+#             if st.button('Remove Last Image', disabled=not st.session_state.images):
+#                 if st.session_state.images:
+#                     st.session_state.images.pop()
+#                     st.session_state.texts.pop()
+#                 st.session_state.done_pasting = False  # Allow further pasting if necessary
+#                 st.rerun()  # Refresh the page after removing
 
-        with col2:
-            if st.button('Remove All Images', disabled=not st.session_state.images):
-                st.session_state.images = []
-                st.session_state.texts = []
-                st.session_state.done_pasting = False
-                st.rerun()  # Refresh the page after removing
+#         with col2:
+#             if st.button('Remove All Images', disabled=not st.session_state.images):
+#                 st.session_state.images = []
+#                 st.session_state.texts = []
+#                 st.session_state.done_pasting = False
+#                 st.rerun()  # Refresh the page after removing
 
-        with col3:
-            if st.button('Start Over'):
-                st.session_state.images = []
-                st.session_state.texts = []
-                st.session_state.done_pasting = False
-                st.rerun() 
+#         with col3:
+#             if st.button('Start Over'):
+#                 st.session_state.images = []
+#                 st.session_state.texts = []
+#                 st.session_state.done_pasting = False
+#                 st.rerun() 
 
 
-# Initialize EasyOCR reader
-reader = easyocr.Reader(['en'])
+# # Initialize EasyOCR reader
+# reader = easyocr.Reader(['en'])
 
 st.markdown("""
     <style>
@@ -119,7 +128,8 @@ with tabs[0]:
     url = "https://drops.warframestat.us/"
     link_text = "drops.warframestat.us"
     st.write(f'_Processed and sourced from_ ', f"_[{link_text}]({url})_")
-    st.dataframe(return_df())
+    df = get_data()
+    st.dataframe(df)
 
 with tabs[1]:
     st.title("Prime Item Trading Calculator")
@@ -137,10 +147,11 @@ with tabs[1]:
         silver65 = st.number_input("Silver65", min_value=0, value=0)
         gold = st.number_input("Gold", min_value=0, value=0)
         if st.button("Calculate Profit"):
-            calculator_results = run_prime_calculator(
-                bronze15=bronze15, bronze25=bronze25, silver45=silver45, silver65=silver65, gold=gold, bypass=True,
-                plot=st.session_state.enable_plot, calc_type=calc_type, display_anova=st.session_state.display_anova
-            )
+            with st.spinner('Calculating...'):
+                calculator_results = run_prime_calculator(
+                    bronze15=bronze15, bronze25=bronze25, silver45=silver45, silver65=silver65, gold=gold, bypass=True,
+                    plot=st.session_state.enable_plot, calc_type=calc_type, display_anova=st.session_state.display_anova
+                )
             st.write(calculator_results)
     elif input_method == 'Image from clipboard':
         # clipboard_code()
