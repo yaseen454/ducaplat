@@ -110,7 +110,7 @@ def reset_images():
 
 def clipboard_code():
     # App title
-    st.title("Paste Images for OCR Processing")
+    st.write("**Important Notes:** _make sure the image you copy is not bad in quality, where text is clear and visible so the ocr can run properly_")
 
     # Paste images section
     handle_paste_images()
@@ -280,7 +280,7 @@ with tabs[1]:
         # st.markdown("<h2 style='color: red;'>🚧 WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
 with tabs[2]:
     st.title('Tool Usage & Info')
-    st.markdown("<h2 style='color: red;'>🚧 Image from clipboard: WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
+    # st.markdown("<h2 style='color: red;'>🚧 Image from clipboard: WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
     st.write("### Image Fetch Steps:")
     st.write('_You can use images instead of manually inputting and counting '
              'your prime parts yourself to save up some time_')
