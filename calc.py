@@ -254,7 +254,7 @@ def prime_prints(bronze15=None, bronze25=None, silver45=None, silver65=None, gol
     st.write(f'**Bronze15:** {bronze15} item(s)',
              f'   **Bronze25:** {bronze25} item(s)',
              f'   **Silver45:** {silver45} item(s)',
-             f'   **Silver65:** {silver65) item(s)',
+             f'   **Silver65:** {silver65} item(s)',
              f'  **Gold:** {gold} item(s)')
 
     col1, col2, col3 = st.columns(3)
