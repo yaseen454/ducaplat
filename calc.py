@@ -251,11 +251,11 @@ def prime_prints(bronze15=None, bronze25=None, silver45=None, silver65=None, gol
                  modes=None, mode_avg=None, sd=None, df_printing=False, df=None):
     st.markdown('---')  # Adds a horizontal divider
     st.markdown('### Pricing Breakdown')  # Adds a bold header
-    st.write(f'{bronze15}x Bronze15')
-    st.write(f'{bronze25}x Bronze25')
-    st.write(f'{silver45}x Silver45')
-    st.write(f'{silver65}x Silver65')
-    st.write(f'{gold}x Gold')
+    st.write(f'**{bronze15}x** Bronze15')
+    st.write(f'**{bronze25}x** Bronze25')
+    st.write(f'**{silver45}x** Silver45')
+    st.write(f'**{silver65}x** Silver65')
+    st.write(f'**{gold}x** Gold')
     # st.write(f'**Bronze15:** {bronze15} item(s)',
     #          f'   **Bronze25:** {bronze25} item(s)',
     #          f'   **Silver45:** {silver45} item(s)',
