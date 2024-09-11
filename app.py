@@ -5,6 +5,7 @@ from ocr import expand_list, count_types, count, return_df, dict_count
 from PIL import Image
 from streamlit_paste_button import paste_image_button as pbutton
 import numpy as np
+import streamlit.components.v1 as components
 import io
 # Initialize session state variables globally if they don't exist
 if 'calc_type' not in st.session_state:
@@ -23,6 +24,35 @@ if 'extracted_text' not in st.session_state:
 if 'processed' not in st.session_state:
     st.session_state.processed = False 
 
+# JavaScript to detect browser and device type
+detect_js = """
+<script>
+    function detectBrowser() {
+        var userAgent = navigator.userAgent;
+        var isMobile = /Mobi|Android|iPhone|iPad|iPod/.test(userAgent);
+        var isFirefox = userAgent.toLowerCase().indexOf('firefox') > -1;
+
+        // Send the result back to Streamlit via localStorage
+        if (isMobile || isFirefox) {
+            localStorage.setItem("hideContent", "true");
+        } else {
+            localStorage.setItem("hideContent", "false");
+        }
+
+        // Reload the page to reflect changes
+        window.location.reload();
+    }
+
+    detectBrowser();
+</script>
+"""
+
+
+# Display JavaScript in the app
+components.html(detect_js)
+
+# Check localStorage value set by JavaScript
+hide_content = st.experimental_get_query_params().get("hideContent", "false")[0] == "true"
 
 st.sidebar.title("Settings")
 st.sidebar.header("Input Method")
@@ -278,7 +308,10 @@ with tabs[1]:
             # Show results
             st.write(calculator_results)
     elif input_method == 'Image from clipboard':
-        clipboard_code()
+        if hidden_content:
+            st.warning("This content is unavailable on mobile and Firefox browsers.")
+        else:
+            clipboard_code()
         # st.markdown("<h2 style='color: red;'>🚧 WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
 with tabs[2]:
     st.title('Tool Usage & Info')
