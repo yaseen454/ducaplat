@@ -5,7 +5,6 @@ from ocr import expand_list, count_types, count, return_df, dict_count
 from PIL import Image
 from streamlit_paste_button import paste_image_button as pbutton
 import numpy as np
-import streamlit.components.v1 as components
 import io
 # Initialize session state variables globally if they don't exist
 if 'calc_type' not in st.session_state:
@@ -22,50 +21,7 @@ if 'images' not in st.session_state:
 if 'extracted_text' not in st.session_state:
     st.session_state.extracted_text = []
 if 'processed' not in st.session_state:
-    st.session_state.processed = False 
-
-# JavaScript to detect browser and device type
-detect_js = """
-<script>
-    function detectBrowser() {
-        var userAgent = navigator.userAgent;
-        var isMobile = /Mobi|Android|iPhone|iPad|iPod/.test(userAgent);
-        var isFirefox = userAgent.toLowerCase().indexOf('firefox') > -1;
-
-        // Send the result back to Streamlit via localStorage
-        if (isMobile || isFirefox) {
-            localStorage.setItem("hideContent", "true");
-        } else {
-            localStorage.setItem("hideContent", "false");
-        }
-
-        // Reload the page to reflect changes
-        window.location.reload();
-    }
-
-    detectBrowser();
-</script>
-"""
-
-
-# Display JavaScript in the app
-components.html(detect_js)
-
-# Check localStorage value set by JavaScript
-hide_content = st.experimental_get_query_params().get("hideContent", "false")[0] == "true"
-
-st.sidebar.title("Settings")
-st.sidebar.header("Input Method")
-input_method = st.sidebar.radio(
-    "Choose how you want to input prime parts:",
-    ("Manual Input", "Image from clipboard")
-)
-# Sidebar settings for calculation type and options
-
-calc_type = st.sidebar.selectbox("Select Calculation Type", ["narrow", "broad"])
-st.session_state.calc_type = 2 if calc_type == 'broad' else 1
-st.session_state.display_anova = st.sidebar.checkbox("Display ANOVA results", value=st.session_state.display_anova)
-st.session_state.enable_plot = st.sidebar.checkbox("Enable Plotting", value=st.session_state.enable_plot)
+    st.session_state.processed = False
 
 # Cache the OCR model loading
 @st.cache_resource
@@ -80,12 +36,26 @@ def get_data():
     return return_df()
 
 
+st.sidebar.title("Settings")
+st.sidebar.header("Input Method")
+input_method = st.sidebar.radio(
+    "Choose how you want to input prime parts:",
+    ("Manual Input", "Image from clipboard")
+)
+# Sidebar settings for calculation type and options
+
+calc_type = st.sidebar.selectbox("Select Calculation Type", ["narrow", "broad"])
+st.session_state.calc_type = 2 if calc_type == 'broad' else 1
+st.session_state.display_anova = st.sidebar.checkbox("Display ANOVA results", value=st.session_state.display_anova)
+st.session_state.enable_plot = st.sidebar.checkbox("Enable Plotting", value=st.session_state.enable_plot)
+
+
 def image_exists(new_img_data):
     for img in st.session_state.images:
         if np.array_equal(new_img_data, img):
             return True
     return False
-# Function to handle pasting images
+
 # Function to handle pasting images
 def handle_paste_images():
     paste_result = pbutton("📋 Paste an image")  # Use pbutton to paste the image
@@ -137,6 +107,48 @@ def reset_images():
     st.session_state.processed = False
     st.success("All images have been reset. You can start over.")
 
+def home_page():
+    # Large title (website name) before the main title with dark gold color and custom font
+    st.markdown("<h1 class='large-title'>DucaPlat</h1>", unsafe_allow_html=True)
+    st.title("Warframe Prime Item Trading Calculator")
+    st.success("🎉 **Image Clipboard is now available!** 🎉 _check Help for more info._")
+    st.write("_Welcome to **DucaPlat**! the Warframe Prime Item Trading Calculator. "
+             "This tool allows you to calculate the profit from trading prime parts in Warframe._")
+    st.write("_You can choose to input your prime parts either manually or "
+             "by uploading images for OCR processing. Once you have processed "
+             "the images or entered the data, you can calculate the profit and see detailed results._")
+    st.write('### Prime Items')
+    url = "https://drops.warframestat.us/"
+    link_text = "drops.warframestat.us"
+    st.write(f'_Processed and sourced from_ ', f"_[{link_text}]({url})_")
+    df = get_data()
+    st.dataframe(df)
+
+def manual_input():
+    # Input fields for prime part quantities
+        bronze15 = st.number_input("Bronze15", min_value=0, value=0, step=1)
+        bronze25 = st.number_input("Bronze25", min_value=0, value=0, step=1)
+        silver45 = st.number_input("Silver45", min_value=0, value=0, step=1)
+        silver65 = st.number_input("Silver65", min_value=0, value=0, step=1)
+        gold = st.number_input("Gold", min_value=0, value=0, step=1)
+        
+        # Button to explicitly trigger calculation
+        if st.button("Calculate Profit"):
+            with st.spinner('Calculating...'):
+                # Call the calculation function when user presses the button
+                calculator_results = run_prime_calculator(
+                    bronze15=bronze15, 
+                    bronze25=bronze25, 
+                    silver45=silver45, 
+                    silver65=silver65, 
+                    gold=gold,
+                    bypass=True,
+                    plot=st.session_state.enable_plot,
+                    calc_type=st.session_state.calc_type,
+                    display_anova=st.session_state.display_anova
+                )
+            # Show results
+            st.write(calculator_results)
 
 def clipboard_code():
     # App title
@@ -191,130 +203,8 @@ def clipboard_code():
             st.write('Press confirm to reset')
             if st.button("Confirm"):
                 reset_images()
-
-
-    
-# def clipboard_code():
-#     paste_result = pbutton("📋 Paste an image", errors='No image found in clipboard')
-
-#     # Only process if image data is found
-#     if paste_result.image_data is not None:
-#         # Ensure we don't accidentally append the same image multiple times
-#         if paste_result.image_data not in st.session_state.images:
-#             # Append image and its OCR text to session state lists
-#             st.session_state.images.append(paste_result.image_data)
-#             st.session_state.texts.append(process_image(paste_result.image_data))
-#             st.image(paste_result.image_data)
-#         else:
-#             st.warning("This image has already been pasted.")
-#     else:
-#         st.error('No image found in clipboard')
-
-#     if st.button('Done Pasting'):
-#         st.session_state.done_pasting = True
-    
-#     if st.session_state.done_pasting and st.session_state.images:
-#         # Display all images and corresponding texts
-#         for idx, (image, text) in enumerate(zip(st.session_state.images, st.session_state.texts)):
-#             st.image(image, caption=f"Image {idx+1}")
-#             st.write(f"Extracted Text {idx+1}: {text}")
-        
-#         col1, col2, col3 = st.columns(3)
-#         with col1:
-#             if st.button('Remove Last Image', disabled=not st.session_state.images):
-#                 if st.session_state.images:
-#                     st.session_state.images.pop()
-#                     st.session_state.texts.pop()
-#                 st.session_state.done_pasting = False  # Allow further pasting if necessary
-#                 st.rerun()  # Refresh the page after removing
-
-#         with col2:
-#             if st.button('Remove All Images', disabled=not st.session_state.images):
-#                 st.session_state.images = []
-#                 st.session_state.texts = []
-#                 st.session_state.done_pasting = False
-#                 st.rerun()  # Refresh the page after removing
-
-#         with col3:
-#             if st.button('Start Over'):
-#                 st.session_state.images = []
-#                 st.session_state.texts = []
-#                 st.session_state.done_pasting = False
-#                 st.rerun() 
-
-
-# # Initialize EasyOCR reader
-# reader = easyocr.Reader(['en'])
-
-st.markdown("""
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
-        .large-title {
-            font-family: 'Roboto', sans-serif;
-            text-align: center;
-            color: #DAA520;  /* Dark gold color */
-            font-size: 4em;  /* Adjust font size as needed */
-            margin: 0;
-            padding: 0;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-
-# Ribbon for page navigation
-tabs = st.tabs(["Home", "Calculator", "Help", "About"])
-
-with tabs[0]:
-    # Large title (website name) before the main title with dark gold color and custom font
-    st.markdown("<h1 class='large-title'>DucaPlat</h1>", unsafe_allow_html=True)
-    st.title("Warframe Prime Item Trading Calculator")
-    st.success("🎉 **Image Clipboard is now available!** 🎉 _check Help for more info._")
-    st.write("_Welcome to **DucaPlat**! the Warframe Prime Item Trading Calculator. "
-             "This tool allows you to calculate the profit from trading prime parts in Warframe._")
-    st.write("_You can choose to input your prime parts either manually or "
-             "by uploading images for OCR processing. Once you have processed "
-             "the images or entered the data, you can calculate the profit and see detailed results._")
-    st.write('### Prime Items')
-    url = "https://drops.warframestat.us/"
-    link_text = "drops.warframestat.us"
-    st.write(f'_Processed and sourced from_ ', f"_[{link_text}]({url})_")
-    df = get_data()
-    st.dataframe(df)
-
-with tabs[1]:
-    st.title("Prime Item Trading Calculator")
-    if input_method == "Manual Input":
-        # Input fields for prime part quantities
-        bronze15 = st.number_input("Bronze15", min_value=0, value=0, step=1)
-        bronze25 = st.number_input("Bronze25", min_value=0, value=0, step=1)
-        silver45 = st.number_input("Silver45", min_value=0, value=0, step=1)
-        silver65 = st.number_input("Silver65", min_value=0, value=0, step=1)
-        gold = st.number_input("Gold", min_value=0, value=0, step=1)
-        
-        # Button to explicitly trigger calculation
-        if st.button("Calculate Profit"):
-            with st.spinner('Calculating...'):
-                # Call the calculation function when user presses the button
-                calculator_results = run_prime_calculator(
-                    bronze15=bronze15, 
-                    bronze25=bronze25, 
-                    silver45=silver45, 
-                    silver65=silver65, 
-                    gold=gold,
-                    bypass=True,
-                    plot=st.session_state.enable_plot,
-                    calc_type=st.session_state.calc_type,
-                    display_anova=st.session_state.display_anova
-                )
-            # Show results
-            st.write(calculator_results)
-    elif input_method == 'Image from clipboard':
-        if hide_content:
-            st.warning("This content is unavailable on mobile and Firefox browsers.")
-        else:
-            clipboard_code()
-        # st.markdown("<h2 style='color: red;'>🚧 WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
-with tabs[2]:
-    st.title('Tool Usage & Info')
+def help_page():
+     st.title('Tool Usage & Info')
     # st.markdown("<h2 style='color: red;'>🚧 Image from clipboard: WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
     st.write("### Image Fetch Steps:")
     st.write('_You can use images instead of manually inputting and counting '
@@ -374,5 +264,35 @@ The goal of these groupings is to compare how different combinations of rare ite
     st.write()
     st.write('_I also know that technically there are more combinations in both broad and narrow sets, but that calculation is really unnecessary for the sake of simplicity and usability._')
 
+
+
+st.markdown("""
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
+        .large-title {
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+            color: #DAA520;  /* Dark gold color */
+            font-size: 4em;  /* Adjust font size as needed */
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+# Ribbon for page navigation
+tabs = st.tabs(["Home", "Calculator", "Help", "About"])
+
+with tabs[0]:
+    home_page()
+with tabs[1]:
+    st.title("Prime Item Trading Calculator")
+    if input_method == "Manual Input":
+        manual_input()
+    elif input_method == 'Image from clipboard':
+        clipboard_code()
+        # st.markdown("<h2 style='color: red;'>🚧 WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
+with tabs[2]:
+    help_page()
 with tabs[3]:
     st.write('**_Nothing here yet_**')
