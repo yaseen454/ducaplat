@@ -204,7 +204,7 @@ def clipboard_code():
             if st.button("Confirm"):
                 reset_images()
 def help_page():
-     st.title('Tool Usage & Info')
+    st.title('Tool Usage & Info')
     # st.markdown("<h2 style='color: red;'>🚧 Image from clipboard: WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
     st.write("### Image Fetch Steps:")
     st.write('_You can use images instead of manually inputting and counting '
