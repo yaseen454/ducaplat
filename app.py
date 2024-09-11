@@ -152,7 +152,7 @@ def manual_input():
 
 def clipboard_code():
     # App title
-    st.write("**Important Notes:** _make sure the image you copy is not bad in quality, where text is clear and visible so the ocr can run properly_")
+    st.write("**Important Notes:** _make sure the image you copy is not bad in quality, where text is clear and visible so the ocr can run properly, pasting two of the same images consequently is not allowed_")
     st.write("**Pasting does not support mobile browsers & firefox**")
 
     # Paste images section
@@ -264,7 +264,8 @@ The goal of these groupings is to compare how different combinations of rare ite
     st.write()
     st.write('_I also know that technically there are more combinations in both broad and narrow sets, but that calculation is really unnecessary for the sake of simplicity and usability._')
 
-
+def about_page():
+    pass
 
 st.markdown("""
     <style>
