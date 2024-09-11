@@ -147,8 +147,6 @@ def manual_input():
                     calc_type=st.session_state.calc_type,
                     display_anova=st.session_state.display_anova
                 )
-            # Show results
-            st.write(calculator_results)
 
 def clipboard_code():
     # App title
