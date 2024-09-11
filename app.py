@@ -308,7 +308,7 @@ with tabs[1]:
             # Show results
             st.write(calculator_results)
     elif input_method == 'Image from clipboard':
-        if hidden_content:
+        if hide_content:
             st.warning("This content is unavailable on mobile and Firefox browsers.")
         else:
             clipboard_code()
