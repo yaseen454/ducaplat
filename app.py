@@ -312,7 +312,7 @@ tabs = st.tabs(["Home", "Calculator", "Help", "About"])
 with tabs[0]:
     home_page()
 with tabs[1]:
-    st.title("Prime Item Trading Calculator")
+    st.title("Prime Junk Trading Calculator")
     if input_method == "Manual Input":
         manual_input()
     elif input_method == 'Image from clipboard':
