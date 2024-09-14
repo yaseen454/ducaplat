@@ -40,7 +40,7 @@ st.sidebar.title("Settings")
 st.sidebar.header("Input Method")
 input_method = st.sidebar.radio(
     "Choose how you want to input prime parts:",
-    ("Manual Input", "Image from clipboard")
+    ("Manual Input", "Image from clipboard","Data Selection")
 )
 # Sidebar settings for calculation type and options
 
@@ -264,7 +264,34 @@ The goal of these groupings is to compare how different combinations of rare ite
 
 def about_page():
     pass
+def data_selection():
+    column = get_data()['Item Name']
+    # Search and select tool for 'Item Name' column
+    selected_items = st.multiselect('Select Item(s)', column.unique())
+    # Input the number of duplicates for each selected item
+    counts = []
+    if selected_items:
+        st.write("Enter the count for each item")
+        for item in selected_items:
+            count_ = st.number_input(f"Count for {item}", min_value=1, value=1, step=1)
+            counts.append(count_)
 
+    # Button to calculate
+    if st.button("Calculate Profit"):
+        if selected_items and counts:
+            selected_items = np.array(selected_items)
+            counts = np.array(counts)
+            result = np.repeat(selected_items,counts)
+            d = dict_count(result)
+            result = run_prime_calculator(d[0],
+                                          d[1],
+                                          d[2],
+                                          d[3],
+                                          d[4], bypass=True, calc_type=st.session_state.calc_type,
+                                          plot=st.session_state.enable_plot,
+                                          display_anova=st.session_state.display_anova)
+        else:
+            st.warning("Please select items and enter counts.")
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
@@ -291,6 +318,8 @@ with tabs[1]:
     elif input_method == 'Image from clipboard':
         clipboard_code()
         # st.markdown("<h2 style='color: red;'>🚧 WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
+    elif input_method == 'Data Selection':
+        data_selection()
 with tabs[2]:
     help_page()
 with tabs[3]:
