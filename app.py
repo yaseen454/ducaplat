@@ -23,6 +23,8 @@ if 'extracted_text' not in st.session_state:
 if 'processed' not in st.session_state:
     st.session_state.processed = False
 
+RESIZE_DIMENSIONS = (1024, 768) 
+
 # Cache the OCR model loading
 @st.cache_resource
 def load_ocr_model():
@@ -78,17 +80,50 @@ def handle_paste_images():
 
 
 # Function to process images with EasyOCR and extract text
+# def process_images():
+#     combined_text = []
+#     print(st.session_state.images)
+#     for img in st.session_state.images:
+#         st.write("Processing image with EasyOCR...")
+#         extracted_text = reader.readtext(img,detail=0)  # Extract text
+#         combined_text.extend(extracted_text)
+
+#     st.session_state.extracted_text = combined_text
+#     st.write("Extracted Text:")
+#     st.write(combined_text)
+
 def process_images():
     combined_text = []
-    print(st.session_state.images)
+    if not st.session_state.images:
+        st.error("No images to process. Please paste at least one image.")
+        return
+
     for img in st.session_state.images:
         st.write("Processing image with EasyOCR...")
-        extracted_text = reader.readtext(img,detail=0)  # Extract text
+        
+        # Preprocess the image before OCR
+        image_pil = Image.fromarray(img)
+        processed_img = preprocess_image(image_pil)
+        
+        # Convert back to numpy array for OCR processing
+        processed_img_np = np.array(processed_img)
+        extracted_text = reader.readtext(processed_img_np, detail=0)  # Extract text
         combined_text.extend(extracted_text)
-
+        
     st.session_state.extracted_text = combined_text
     st.write("Extracted Text:")
     st.write(combined_text)
+
+# Preprocess the image by resizing and enhancing
+def preprocess_image(image):
+    # Resize the image to the specified dimensions
+    resized_image = image.resize(RESIZE_DIMENSIONS, Image.ANTIALIAS)
+    
+    # Convert to grayscale and enhance contrast for better OCR performance
+    gray_image = resized_image.convert('L')
+    enhancer = ImageEnhance.Contrast(gray_image)
+    enhanced_image = enhancer.enhance(2)  # Enhance contrast
+    return enhanced_image
 
 
 # Function to remove last n items from extracted text
