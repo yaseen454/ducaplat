@@ -117,7 +117,7 @@ def process_images():
 # Preprocess the image by resizing and enhancing
 def preprocess_image(image):
     # Resize the image to the specified dimensions
-    resized_image = image.resize(RESIZE_DIMENSIONS, Image.ANTIALIAS)
+    resized_image = image.resize(RESIZE_DIMENSIONS, Image.LANCZOS)
     
     # Convert to grayscale and enhance contrast for better OCR performance
     gray_image = resized_image.convert('L')
