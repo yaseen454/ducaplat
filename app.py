@@ -238,6 +238,7 @@ def clipboard_code():
         process_images()
     # Display different content based on the mode
     if st.session_state.extracted_text:
+        st.session_state.mode = 'edit'
         if st.session_state.mode == "edit":
             display_editable_text()  # Show editable text areas if in editing mode
         elif st.session_state.mode == "view":
