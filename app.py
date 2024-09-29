@@ -149,30 +149,36 @@ def display_editable_text():
     st.write("### Edit Extracted Text")
 
     # Input field for the user to specify multiple texts they want to remove
-    target_texts = st.text_input("Enter the items you want to remove (comma-separated):")
+    target_texts = st.text_input("Enter the texts you want to remove (comma-separated):")
 
     # Split the input into a list of target texts
     target_list = [target.strip() for target in target_texts.split(",") if target.strip()]
+
+    # Create a new list to hold text segments that don't contain any of the target texts
+    new_edited_texts = []
 
     # Loop over the extracted text
     for i, text in enumerate(st.session_state.extracted_text):
         # Get the current edited text from the user
         edited_text = st.text_area(f"Text Segment {i+1}", value=st.session_state.edited_text[i], key=f"text_{i}")
-        if target_list:
-            # Apply each target text removal
-            for target_text in target_list:
-                if target_text in edited_text:
-                    # Remove the target text
-                    edited_text = edited_text.replace(target_text, "")
-    
-                    # Optionally, display a warning about the modification
-                    st.warning(f"Removed '{target_text}' from Text Segment {i+1}")
 
-        # Store the modified text back into the session state
-        st.session_state.edited_text[i] = edited_text
+        # Flag to check if this text should be removed
+        remove_segment = False
 
-    # After processing all text segments, update the extracted text in the session state
-    st.session_state.extracted_text = st.session_state.edited_text.copy()
+        # Apply each target text removal
+        for target_text in target_list:
+            if target_text in edited_text:
+                # Mark the segment for removal and display warning
+                remove_segment = True
+                st.warning(f"Removed '{target_text}' from Text Segment {i+1}")
+
+        # If the segment is not flagged for removal, add it to the new list
+        if not remove_segment:
+            new_edited_texts.append(edited_text)
+
+    # Update the session state with the new list (with removed segments)
+    st.session_state.edited_text = new_edited_texts
+    st.session_state.extracted_text = new_edited_texts.copy()
 
     # Change the mode to "view" if needed
     st.session_state.mode = "view"
