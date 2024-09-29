@@ -95,16 +95,16 @@ def extract_items(input_str, df=df_cleaned):
         item_str = match[1].strip()
         
         # Find if the item is in the dataframe
-        for index, row in df.iterrows():
-            item = row['Item']
+        for index, row in df['Item Name'].iteritems():
+            item = row['Item Name']
             if item_str.startswith(item):  # Ensure matching item
                 parsed_items.extend([item] * count)
                 input_str = input_str.replace(f'{count} X {item}', '', 1)
                 break
 
     # Handle remaining single items (without "N X" prefix)
-    for index, row in df.iterrows():
-        item = row['Item']
+    for index, row in df['Item Name'].iteritems():
+        item = row['Item Name']
         if item in input_str:
             parsed_items.append(item)
             input_str = input_str.replace(item, '', 1)
@@ -160,7 +160,7 @@ def count(dictionary):
 def finalize_process(item_list,df=df_cleaned):
     items = ' '.join(item_list)
     parsed = extract_items(items,df)
-    return dict_count(items,df)
+    return dict_count(parsed,df)
 
 def price_of_all_primes(calc_type = 1,plot=False,dataframe=df_cleaned):
     d = dict_count(df_cleaned['Item Name'],dataframe=dataframe)
