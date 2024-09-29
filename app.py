@@ -59,21 +59,21 @@ st.session_state.display_anova = st.sidebar.checkbox("Display ANOVA results", va
 st.session_state.enable_plot = st.sidebar.checkbox("Enable Plotting", value=st.session_state.enable_plot)
 
 # Function to handle clipboard monitoring for pasted images
-def monitor_clipboard():
-    """Continuously monitor clipboard for new images when the toggle is active."""
-    while st.session_state.monitor_clipboard:
-        paste_result = pbutton("📋 Paste an image")
+# def monitor_clipboard():
+#     """Continuously monitor clipboard for new images when the toggle is active."""
+#     while st.session_state.monitor_clipboard:
+#         paste_result = pbutton("📋 Paste an image")
 
-        if paste_result.image_data is not None:
-            img_np = np.array(paste_result.image_data)
-            if not any(np.array_equal(img_np, img) for img in st.session_state.images):
-                st.session_state.images.append(img_np)
-                st.image(paste_result.image_data)
-                # Reset extracted text when a new image is added
-                st.session_state.extracted_text = []
-                st.session_state.edited_text = []
-                st.session_state.mode = "process"  # Switch to processing mode when a new image is added
-                st.success("New image detected and added successfully.")
+#         if paste_result.image_data is not None:
+#             img_np = np.array(paste_result.image_data)
+#             if not any(np.array_equal(img_np, img) for img in st.session_state.images):
+#                 st.session_state.images.append(img_np)
+#                 st.image(paste_result.image_data)
+#                 # Reset extracted text when a new image is added
+#                 st.session_state.extracted_text = []
+#                 st.session_state.edited_text = []
+#                 st.session_state.mode = "process"  # Switch to processing mode when a new image is added
+#                 st.success("New image detected and added successfully.")
 
 def image_exists(new_img_data):
     for img in st.session_state.images:
@@ -102,17 +102,17 @@ def image_exists(new_img_data):
 #         #     st.warning("This image has already been added.")
 
 # Function to handle pasting images
-# def handle_paste_images():
-#     paste_result = pbutton("📋 Paste an image")
-#     if paste_result.image_data is not None:
-#         img_np = np.array(paste_result.image_data)
-#         if not any(np.array_equal(img_np, img) for img in st.session_state.images):
-#             st.session_state.images.append(img_np)
-#             st.image(paste_result.image_data)
-#             # Reset state after new image is added
-#             st.session_state.extracted_text = []
-#             st.session_state.edited_text = []
-#             st.session_state.mode = "process"  # Switch to processing mode
+def handle_paste_images():
+    paste_result = pbutton("📋 Paste an image")
+    if paste_result.image_data is not None:
+        img_np = np.array(paste_result.image_data)
+        if not any(np.array_equal(img_np, img) for img in st.session_state.images):
+            st.session_state.images.append(img_np)
+            st.image(paste_result.image_data)
+            # Reset state after new image is added
+            st.session_state.extracted_text = []
+            st.session_state.edited_text = []
+            st.session_state.mode = "process"  # Switch to processing mode
 
 # Function to process images with EasyOCR and extract text
 # def process_images():
@@ -247,15 +247,7 @@ def clipboard_code():
     st.write("**Important Notes:** _make sure the image you copy is not bad in quality, where text is clear and visible so the ocr can run properly, pasting two of the same images consequently is not allowed_")
     st.write("**Pasting does not support mobile browsers & firefox**")
     # Paste images section
-     # Toggle to start/stop clipboard monitoring
-    st.session_state.monitor_clipboard = st.checkbox("Start Clipboard Monitoring")
-
-    if st.session_state.monitor_clipboard:
-        st.warning("Clipboard monitoring is active. Paste an image to add it.")
-        monitor_clipboard()
-    else:
-        st.info("Clipboard monitoring is inactive.")
-
+    handle_paste_images()
     # Button to process images after clipboard monitoring
     if st.button("Process Images") and st.session_state.images:
         process_images()
