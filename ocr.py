@@ -3,7 +3,8 @@ from calc import run_prime_calculator
 import re
 import streamlit as st
 
-
+if 'show' not in st.session_state:
+    st.session_state.show = []
 # Function to determine the 'Type' based on 'Average Ducats'
 def determine_type(average_ducats):
     tolerance = 1e-6
@@ -161,6 +162,12 @@ def finalize_process(item_list,df=df_cleaned):
     items = ' '.join(item_list)
     parsed = extract_items(items,df)
     return dict_count(parsed,df)
+
+def show_extraction(item_list,df=df_cleaned):
+    items = ' '.join(item_list)
+    parsed = extract_items(item_list)
+    st.session_state.show = parsed
+    st.write(st.session_state.show)
 
 def price_of_all_primes(calc_type = 1,plot=False,dataframe=df_cleaned):
     d = dict_count(df_cleaned['Item Name'],dataframe=dataframe)
