@@ -245,7 +245,6 @@ def clipboard_code():
             # "Apply Changes" button to confirm edits
             if st.button("Apply Changes"):
                 st.session_state.extracted_text = st.session_state.edited_text.copy()
-                st.session_state.mode = "view"  # Switch back to view mode
                 st.success("Changes applied successfully!")
                 st.write("### Final Extracted Text")
                 st.write(st.session_state.extracted_text)
