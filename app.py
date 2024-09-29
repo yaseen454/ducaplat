@@ -241,7 +241,7 @@ def clipboard_code():
     if st.session_state.extracted_text:
         if st.session_state.editing:
             display_editable_text()  # Show editable text areas if in editing mode
-        else:
+        # else:
             st.write("### Final Extracted Text")
             st.write(st.session_state.extracted_text)
 
