@@ -26,8 +26,8 @@ if 'editing' not in st.session_state:
     st.session_state.editing = False  # Track whether we're in editing mode
 if 'edited_text' not in st.session_state:
     st.session_state.edited_text = []  # Store intermediate edited text
-if 'view_mode' not in st.session_state:
-    st.session_state.view_mode = False
+if 'mode' not in st.session_state:
+    st.session_state.mode = "view"  # Modes: 'view', 'edit', 'process'
 
 
 # RESIZE_DIMENSIONS = (1024, 768) 
@@ -66,24 +66,37 @@ def image_exists(new_img_data):
     return False
 
 # Function to handle pasting images
+# def handle_paste_images():
+#     paste_result = pbutton("📋 Paste an image")  # Use pbutton to paste the image
+
+#     # Check if there's valid pasted image data
+#     if paste_result.image_data is not None:
+#         # Convert to numpy array
+#         img_np = np.array(paste_result.image_data)
+
+#         # Check if the image has already been added
+#         if not image_exists(img_np):
+#             st.session_state.images.append(img_np)
+#             st.write('Pasted image:')
+#             st.image(paste_result.image_data)
+
+#             # Reset the processed flag since a new image has been added
+#             st.session_state.processed = False
+#         # else:
+#         #     st.warning("This image has already been added.")
+
+# Function to handle pasting images
 def handle_paste_images():
-    paste_result = pbutton("📋 Paste an image")  # Use pbutton to paste the image
-
-    # Check if there's valid pasted image data
+    paste_result = pbutton("📋 Paste an image")
     if paste_result.image_data is not None:
-        # Convert to numpy array
         img_np = np.array(paste_result.image_data)
-
-        # Check if the image has already been added
-        if not image_exists(img_np):
+        if not any(np.array_equal(img_np, img) for img in st.session_state.images):
             st.session_state.images.append(img_np)
-            st.write('Pasted image:')
             st.image(paste_result.image_data)
-
-            # Reset the processed flag since a new image has been added
-            st.session_state.processed = False
-        # else:
-        #     st.warning("This image has already been added.")
+            # Reset state after new image is added
+            st.session_state.extracted_text = []
+            st.session_state.edited_text = []
+            st.session_state.mode = "process"  # Switch to processing mode
 
 # Function to process images with EasyOCR and extract text
 # def process_images():
@@ -97,32 +110,29 @@ def handle_paste_images():
 #     st.session_state.extracted_text = combined_text
 #     st.write("Extracted Text:")
 #     st.write(combined_text)
+
 # Function to process images and extract text
 def process_images():
     if not st.session_state.images:
         st.error("No images to process. Please paste at least one image.")
         return
 
-    # Only process images if not processed
-    if not st.session_state.processed:
-        combined_text = []
-        for idx, img in enumerate(st.session_state.images):
-            st.write(f"Processing image {idx+1} with EasyOCR...")
-            extracted_text = reader.readtext(img, detail=0)
-            combined_text.extend(extracted_text)
+    combined_text = []
+    for idx, img in enumerate(st.session_state.images):
+        st.write(f"Processing image {idx+1} with EasyOCR...")
+        extracted_text = reader.readtext(img, detail=0)
+        combined_text.extend(extracted_text)
 
-        # Store extracted text and set flags
-        st.session_state.extracted_text = combined_text
-        st.session_state.edited_text = combined_text.copy()  # Sync edited text with extracted text
-        st.session_state.processed = True
-        st.session_state.editing = True
+    # Store extracted text and switch to view mode
+    st.session_state.extracted_text = combined_text
+    st.session_state.edited_text = combined_text.copy()
+    st.session_state.mode = "view"  # Switch to view mode after processing
 
+# Function to display and edit extracted text
 # Function to display and edit extracted text
 # Function to display and edit extracted text
 def display_editable_text():
     st.write("### Edit Extracted Text")
-
-    # Create text areas for each extracted segment
     for i, text in enumerate(st.session_state.extracted_text):
         edited_text = st.text_area(f"Text Segment {i+1}", value=st.session_state.edited_text[i], key=f"text_{i}")
         st.session_state.edited_text[i] = edited_text
@@ -130,8 +140,7 @@ def display_editable_text():
     # "Apply Changes" button to confirm edits
     if st.button("Apply Changes"):
         st.session_state.extracted_text = st.session_state.edited_text.copy()
-        st.session_state.editing = False  # Stop editing and lock in changes
-        st.session_state.view_mode = True
+        st.session_state.mode = "view"  # Switch back to view mode
         st.success("Changes applied successfully!")
 
 
@@ -169,22 +178,13 @@ def display_editable_text():
 #     return enhanced_image
 
 
-# Function to remove last n items from extracted text
-def remove_last_n_items(n):
-    if len(st.session_state.extracted_text) >= n:
-        st.session_state.extracted_text = st.session_state.extracted_text[:-n]
-    else:
-        st.session_state.extracted_text = []
-    st.write(f"Text after removing last {n} items:")
-    st.write(st.session_state.extracted_text)
 
 # Reset function to clear all images and extracted text
 def reset_images():
     st.session_state.images = []
     st.session_state.extracted_text = []
     st.session_state.edited_text = []
-    st.session_state.processed = False
-    st.session_state.editing = False
+    st.session_state.mode = "view"
     st.success("All images and extracted text have been reset.")
 
 def home_page():
@@ -232,31 +232,23 @@ def clipboard_code():
     # App title
     st.write("**Important Notes:** _make sure the image you copy is not bad in quality, where text is clear and visible so the ocr can run properly, pasting two of the same images consequently is not allowed_")
     st.write("**Pasting does not support mobile browsers & firefox**")
-
     # Paste images section
     handle_paste_images()
-
-    # Button to process images after pasting
-    if st.button("Process Images"):
+    if st.button("Process Images") and st.session_state.images:
         process_images()
-
-    # If text has been extracted, display editable text areas or final text
+    # Display different content based on the mode
     if st.session_state.extracted_text:
-        if st.session_state.editing:
+        if st.session_state.mode == "edit":
             display_editable_text()  # Show editable text areas if in editing mode
-        if st.session_state.view_mode:
+        elif st.session_state.mode == "view":
             st.write("### Final Extracted Text")
             st.write(st.session_state.extracted_text)
 
-            # Options to proceed with further actions
-            action = st.radio("Choose an action:", ["Remove Last N Items", "Reset All", "Calculate Profit"])
+            # Action options after viewing the final text
+            action = st.radio("Choose an action:", ["Edit Text", "Reset All", "Calculate Profit"])
 
-            if action == "Remove Last N Items":
-                n_to_remove = st.number_input("Enter number of items to remove from the end", min_value=1, value=1, step=1)
-                if st.button("Remove Last N Items"):
-                    st.session_state.extracted_text = st.session_state.extracted_text[:-n_to_remove]
-                    st.session_state.edited_text = st.session_state.extracted_text  # Sync edited text with changes
-                    st.write(st.session_state.extracted_text)
+            if action == "Edit Text":
+                st.session_state.mode = "edit"  # Switch to edit mode
     
             elif action == "Calculate Profit":
                 if st.session_state.extracted_text:
