@@ -236,7 +236,7 @@ def clipboard_code():
     handle_paste_images()
     if st.button("Process Images") and st.session_state.images:
         process_images()
-     st.write("### Edit Extracted Text")
+    st.write("### Edit Extracted Text")
     for i, text in enumerate(st.session_state.extracted_text):
         edited_text = st.text_area(f"Text Segment {i+1}", value=st.session_state.edited_text[i], key=f"text_{i}")
         st.session_state.edited_text[i] = edited_text
