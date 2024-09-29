@@ -262,7 +262,7 @@ def prime_prints(bronze15=None, bronze25=None, silver45=None, silver65=None, gol
     #          f'   **Silver65:** {silver65} item(s)',
     #          f'  **Gold:** {gold} item(s)')
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4, col5 = st.columns(5)
 
     # Place metrics in columns
     with col1:
@@ -271,6 +271,10 @@ def prime_prints(bronze15=None, bronze25=None, silver45=None, silver65=None, gol
         st.metric(label="Total Trades", value=trades)
     with col3:
         st.metric(label="Total Ducats", value=ducats)
+    with col4:
+        st.metric(label="Averaged 1 Plat Per Ducat",value = round(ducats / avg,2))
+    with col5:
+        st.metric(label="6 items / 12 Plat Pricing",value = count * 2)
 
     st.markdown('---')
     st.write('### Top Profits')
