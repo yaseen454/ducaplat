@@ -5,7 +5,6 @@ from ocr import expand_list, count_types, count, return_df, dict_count
 from PIL import Image
 from streamlit_paste_button import paste_image_button as pbutton
 import numpy as np
-import time
 import io
 # Initialize session state variables globally if they don't exist
 if 'calc_type' not in st.session_state:
@@ -75,7 +74,6 @@ def monitor_clipboard():
                 st.session_state.edited_text = []
                 st.session_state.mode = "process"  # Switch to processing mode when a new image is added
                 st.success("New image detected and added successfully.")
-        time.sleep(2)  # Wait for 2 seconds before checking again to avoid rapid looping
 
 def image_exists(new_img_data):
     for img in st.session_state.images:
