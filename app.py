@@ -5,6 +5,7 @@ from ocr import expand_list, count_types, count, return_df, dict_count
 from PIL import Image
 from streamlit_paste_button import paste_image_button as pbutton
 import numpy as np
+import time
 import io
 # Initialize session state variables globally if they don't exist
 if 'calc_type' not in st.session_state:
