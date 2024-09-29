@@ -136,7 +136,7 @@ def process_images():
     combined_text = []
     for idx, img in enumerate(st.session_state.images):
         st.write(f"Processing image {idx+1} with EasyOCR...")
-        extracted_text = reader.readtext(img, detail=0)
+        extracted_text = reader.readtext(img, detail=0,paragraph=True)
         combined_text.extend(extracted_text)
 
     # Store extracted text and switch to view mode
