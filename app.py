@@ -192,9 +192,12 @@ def display_editable_text():
 
 # Reset function to clear all images and extracted text
 def reset_images():
+    if 'images' in st.session_state:
+        del session_state.images
     st.session_state.clear()
-    st.rerun()
     st.success("All images and extracted text have been reset.")
+    st.rerun()
+    
 
 def home_page():
     # Large title (website name) before the main title with dark gold color and custom font
