@@ -274,7 +274,6 @@ def clipboard_code():
                     expanded_text = expand_list(st.session_state.extracted_text)
                     st.session_state.expanded_items = expanded_text
                     d = dict_count(st.session_state.expanded_items)
-                    st.write(f'Expanded items {expanded_text}')
                     result = run_prime_calculator(d[0],
                                                   d[1],
                                                   d[2],
