@@ -26,6 +26,8 @@ if 'editing' not in st.session_state:
     st.session_state.editing = False  # Track whether we're in editing mode
 if 'edited_text' not in st.session_state:
     st.session_state.edited_text = []  # Store intermediate edited text
+if 'view_mode' not in st.session_state:
+    st.session_state.view_mode = False
 
 
 # RESIZE_DIMENSIONS = (1024, 768) 
@@ -129,6 +131,7 @@ def display_editable_text():
     if st.button("Apply Changes"):
         st.session_state.extracted_text = st.session_state.edited_text.copy()
         st.session_state.editing = False  # Stop editing and lock in changes
+        st.session_state.view_mode = True
         st.success("Changes applied successfully!")
 
 
@@ -241,7 +244,7 @@ def clipboard_code():
     if st.session_state.extracted_text:
         if st.session_state.editing:
             display_editable_text()  # Show editable text areas if in editing mode
-        # else:
+        if st.session_state.view_mode:
             st.write("### Final Extracted Text")
             st.write(st.session_state.extracted_text)
 
