@@ -157,6 +157,11 @@ def count(dictionary):
     d = [Bronze15, Bronze25, Silver45, Silver65, Gold]
     return d
 
+def finalize_process(item_list,df=df_cleaned):
+    items = ' '.join(item_list)
+    parsed = extract_items(items,df)
+    return dict_count(items,df)
+
 def price_of_all_primes(calc_type = 1,plot=False,dataframe=df_cleaned):
     d = dict_count(df_cleaned['Item Name'],dataframe=dataframe)
     return run_prime_calculator(bronze15=d[0], bronze25=d[1], silver45=d[2], silver65=d[3],
