@@ -193,7 +193,7 @@ def display_editable_text():
 # Reset function to clear all images and extracted text
 def reset_images():
     if 'images' in st.session_state:
-        del session_state.images
+        del st.session_state.images
     st.session_state.clear()
     st.success("All images and extracted text have been reset.")
     st.rerun()
