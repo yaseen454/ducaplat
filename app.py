@@ -153,7 +153,6 @@ def display_editable_text():
 
     st.session_state.extracted_text = st.session_state.edited_text.copy()
     st.session_state.mode = "view"  # Switch back to view mode
-    st.success("Changes applied successfully!")
 
 
 # def process_images():
@@ -258,12 +257,9 @@ def clipboard_code():
             st.write(st.session_state.extracted_text)
         
             # Action options after viewing the final text
-            action = st.radio("Choose an action:", ["Edit Text", "Remove Last N Items", "Reset All", "Calculate Profit"])
-        
-            if action == "Edit Text":
-                display_editable_text() # Switch to edit mode
-        
-            elif action == "Remove Last N Items":
+            action = st.radio("Choose an action:", ["Remove Last N Items", "Reset All", "Calculate Profit"])
+    
+            if action == "Remove Last N Items":
                 n_to_remove = st.number_input("Enter number of items to remove from the end", min_value=1, value=1, step=1)
                 if st.button("Remove Last N Items"):
                     st.session_state.extracted_text = st.session_state.extracted_text[:-n_to_remove]
