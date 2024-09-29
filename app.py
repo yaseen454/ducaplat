@@ -1,7 +1,7 @@
 import easyocr
 import streamlit as st
 from calc import run_prime_calculator
-from ocr import  return_df, finalize_process, show_extraction
+from ocr import  return_df, finalize_process, show_extraction, dict_count
 from PIL import Image
 from streamlit_paste_button import paste_image_button as pbutton
 import numpy as np
@@ -334,6 +334,7 @@ def help_page():
     st.write("- **Step [ 4 ] :** Now you're done! upload or copy the images to your clipboard and watch your prime junk transform into plat.")
 
     image = Image.open('data/Prime_Parts.png')
+    # image = Image.open('"C:\\Users\\yasee\\Pictures\\Rap Covers\\Prime_Parts.png"')
     st.image(image, caption='This is a sample image', use_column_width=True)
     st.write('### How the calculator works:')
     st.write("""
