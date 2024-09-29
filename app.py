@@ -79,17 +79,47 @@ def handle_paste_images():
         #     st.warning("This image has already been added.")
 
 # Function to process images with EasyOCR and extract text
-def process_images():
-    combined_text = []
-    print(st.session_state.images)
-    for img in st.session_state.images:
-        st.write("Processing image with EasyOCR...")
-        extracted_text = reader.readtext(img,detail=0)  # Extract text
-        combined_text.extend(extracted_text)
+# def process_images():
+#     combined_text = []
+#     print(st.session_state.images)
+#     for img in st.session_state.images:
+#         st.write("Processing image with EasyOCR...")
+#         extracted_text = reader.readtext(img,detail=0)  # Extract text
+#         combined_text.extend(extracted_text)
 
-    st.session_state.extracted_text = combined_text
-    st.write("Extracted Text:")
-    st.write(combined_text)
+#     st.session_state.extracted_text = combined_text
+#     st.write("Extracted Text:")
+#     st.write(combined_text)
+
+def process_images():
+    # Check if images are in the session state
+    if 'images' in st.session_state:
+        combined_text = []
+        for idx, img in enumerate(st.session_state.images):
+            st.write(f"Processing image {idx+1} with EasyOCR...")
+            extracted_text = reader.readtext(img, detail=0)  # Extract text
+            combined_text.extend(extracted_text)
+
+        # Store the initial extracted text in session state
+        st.session_state.extracted_text = combined_text
+
+    # Option to edit the extracted text
+    st.write("### Edit Extracted Text")
+    if 'extracted_text' in st.session_state:
+        # Create a new list to store the edited text, but still named `extracted_text`
+        updated_text = []
+        for i, text in enumerate(st.session_state.extracted_text):
+            # Display each extracted text in a text area for corrections
+            edited_text = st.text_area(f"Text Segment {i+1}", value=text, key=f"text_{i}")
+            updated_text.append(edited_text)
+
+        # Update `extracted_text` with the edited values
+        st.session_state.extracted_text = updated_text
+
+    # Display the final edited text
+    st.write("### Final Extracted Text")
+    if 'extracted_text' in st.session_state:
+        st.write(st.session_state.extracted_text)
 
 
 # def process_images():
