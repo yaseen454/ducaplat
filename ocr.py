@@ -1,6 +1,7 @@
 import pandas as pd
 from calc import run_prime_calculator
 import re
+import streamlit as st
 
 
 # Function to determine the 'Type' based on 'Average Ducats'
