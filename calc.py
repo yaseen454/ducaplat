@@ -266,7 +266,7 @@ def prime_prints(bronze15=None, bronze25=None, silver45=None, silver65=None, gol
 
     # Place metrics in columns
     with col1:
-        st.metric(label="Total Items", value=count)
+        st.metric(label="Total Items MM", value=count)
     with col2:
         st.metric(label="Total Trades", value=trades)
     with col3:
