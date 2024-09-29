@@ -1,7 +1,7 @@
 import easyocr
 import streamlit as st
 from calc import run_prime_calculator
-from ocr import  return_df, finalize_process
+from ocr import  return_df, finalize_process, show_extraction
 from PIL import Image
 from streamlit_paste_button import paste_image_button as pbutton
 import numpy as np
@@ -289,7 +289,7 @@ def clipboard_code():
         display_editable_text()  # Show editable text areas if in editing mode
         if st.session_state.mode == "view":
             st.write("### Final Extracted Text")
-            st.write(st.session_state.extracted_text)
+            show_extraction(st.session_state.extracted_text)
         
             # Action options after viewing the final text
             action = st.radio("Choose an action:", ["Calculate Profit", "Reset All"])
