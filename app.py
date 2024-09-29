@@ -138,6 +138,7 @@ def process_images():
         st.write(f"Processing image {idx+1} with EasyOCR...")
         extracted_text = reader.readtext(img, detail=0,paragraph=True)
         combined_text.extend(extracted_text)
+    st.write(type(extracted_text)
 
     # Store extracted text and switch to view mode
     st.session_state.extracted_text = combined_text
@@ -289,7 +290,6 @@ def clipboard_code():
         display_editable_text()  # Show editable text areas if in editing mode
         if st.session_state.mode == "view":
             st.write("### Final Extracted Text")
-            st.write(type(st.session_state.extracted_text))
             st.write(st.session_state.extracted_text)
         
             # Action options after viewing the final text
