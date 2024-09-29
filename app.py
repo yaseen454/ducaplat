@@ -304,7 +304,7 @@ def clipboard_code():
         
             elif action == "Calculate Profit":
                 if st.session_state.extracted_text:
-                    st.write(st.session_state.extracted_text)
+                    # st.write(st.session_state.extracted_text)
                     expanded_text = expand_list(st.session_state.extracted_text)
                     st.session_state.expanded_items = expanded_text
                     d = dict_count(st.session_state.expanded_items)
