@@ -92,33 +92,34 @@ def handle_paste_images():
 #     st.write(combined_text)
 
 def process_images():
-    # Check if images are in the session state
-    if 'images' in st.session_state:
+    if not st.session_state.images:
+        st.error("No images to process. Please paste at least one image.")
+        return
+
+    if not st.session_state.processed:
         combined_text = []
         for idx, img in enumerate(st.session_state.images):
             st.write(f"Processing image {idx+1} with EasyOCR...")
-            extracted_text = reader.readtext(img, detail=0)  # Extract text
+            extracted_text = reader.readtext(img, detail=0)
             combined_text.extend(extracted_text)
 
-        # Store the initial extracted text in session state
+        # Store extracted text and set processed flag
         st.session_state.extracted_text = combined_text
+        st.session_state.processed = True
+        st.session_state.editing = True  # Enable editing mode
 
-    # Option to edit the extracted text
-    st.write("### Edit Extracted Text")
-    if 'extracted_text' in st.session_state:
-        # Create a new list to store the edited text, but still named `extracted_text`
+    # If the text has been extracted, provide the option to edit it
+    if st.session_state.processed:
+        st.write("### Edit Extracted Text")
         updated_text = []
         for i, text in enumerate(st.session_state.extracted_text):
-            # Display each extracted text in a text area for corrections
+            # Use text areas for each extracted segment to allow editing
             edited_text = st.text_area(f"Text Segment {i+1}", value=text, key=f"text_{i}")
             updated_text.append(edited_text)
 
-        # Update `extracted_text` with the edited values
+        # Update extracted text with any edits made
         st.session_state.extracted_text = updated_text
-
-    # Display the final edited text
-    st.write("### Final Extracted Text")
-    if 'extracted_text' in st.session_state:
+        st.write("### Final Extracted Text")
         st.write(st.session_state.extracted_text)
 
 
