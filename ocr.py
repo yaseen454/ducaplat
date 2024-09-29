@@ -99,6 +99,9 @@ def extract_items(input_str, df=df_cleaned):
         for index, row in df['Item Name'].items():
             item = row
             if item_str.startswith(item):  # Ensure matching item
+                if count > 600:
+                    st.warning('Cannot process more than 600 items')
+                    break
                 parsed_items.extend([item] * count)
                 input_str = input_str.replace(f'{count} X {item}', '', 1)
                 break
