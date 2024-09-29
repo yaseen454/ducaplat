@@ -165,7 +165,7 @@ def finalize_process(item_list,df=df_cleaned):
 
 def show_extraction(item_list,df=df_cleaned):
     items = ' '.join(item_list)
-    parsed = extract_items(item_list)
+    parsed = extract_items(items,df)
     st.session_state.show = parsed
     st.write(st.session_state.show)
 
