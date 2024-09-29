@@ -283,6 +283,14 @@ def clipboard_code():
     # Button to process images after clipboard monitoring
     if st.button("Process Images") and st.session_state.images:
         process_images()
+        # Flashy note about the feature in one line
+    st.markdown(
+        """
+        <div style="background-color: #e7f1ff; padding: 8px; border-radius: 5px; border: 1px solid #007bff; text-align: center;">
+            <strong style="color: #007bff;">You can add more of certain items using the (n X) + "Item Name" format</strong>
+        </div>
+        """, unsafe_allow_html=True
+    )
 
     # Display different content based on the mode
     if st.session_state.extracted_text:
