@@ -236,43 +236,44 @@ def clipboard_code():
     handle_paste_images()
     if st.button("Process Images") and st.session_state.images:
         process_images()
-    st.write("### Edit Extracted Text")
-    for i, text in enumerate(st.session_state.extracted_text):
-        edited_text = st.text_area(f"Text Segment {i+1}", value=st.session_state.edited_text[i], key=f"text_{i}")
-        st.session_state.edited_text[i] = edited_text
-
-    # "Apply Changes" button to confirm edits
-    if st.button("Apply Changes"):
-        st.session_state.extracted_text = st.session_state.edited_text.copy()
-        st.session_state.mode = "view"  # Switch back to view mode
-        st.success("Changes applied successfully!")
-        st.write("### Final Extracted Text")
-        st.write(st.session_state.extracted_text)
-
-        # Action options after viewing the final text
-        action = st.radio("Choose an action:", ["Edit Text", "Reset All", "Calculate Profit"])
-
-        if action == "Edit Text":
-            st.session_state.mode = "edit"  # Switch to edit mode
-
-        elif action == "Calculate Profit":
-            if st.session_state.extracted_text:
+        if st.session_state.extracted_text:
+            st.write("### Edit Extracted Text")
+            for i, text in enumerate(st.session_state.extracted_text):
+                edited_text = st.text_area(f"Text Segment {i+1}", value=st.session_state.edited_text[i], key=f"text_{i}")
+                st.session_state.edited_text[i] = edited_text
+        
+            # "Apply Changes" button to confirm edits
+            if st.button("Apply Changes"):
+                st.session_state.extracted_text = st.session_state.edited_text.copy()
+                st.session_state.mode = "view"  # Switch back to view mode
+                st.success("Changes applied successfully!")
+                st.write("### Final Extracted Text")
                 st.write(st.session_state.extracted_text)
-                expanded_text = expand_list(st.session_state.extracted_text)
-                st.session_state.expanded_items = expanded_text
-                d = dict_count(st.session_state.expanded_items)
-                st.write(f'Expanded items {expanded_text}')
-                result = run_prime_calculator(d[0],
-                                              d[1],
-                                              d[2],
-                                              d[3],
-                                              d[4], bypass=True, calc_type=st.session_state.calc_type,
-                                              plot=st.session_state.enable_plot,
-                                              display_anova=st.session_state.display_anova)
-        elif action == 'Reset All':
-            st.write('Press confirm to reset')
-            if st.button("Confirm"):
-                reset_images()
+        
+                # Action options after viewing the final text
+                action = st.radio("Choose an action:", ["Edit Text", "Reset All", "Calculate Profit"])
+        
+                if action == "Edit Text":
+                    st.session_state.mode = "edit"  # Switch to edit mode
+        
+                elif action == "Calculate Profit":
+                    if st.session_state.extracted_text:
+                        st.write(st.session_state.extracted_text)
+                        expanded_text = expand_list(st.session_state.extracted_text)
+                        st.session_state.expanded_items = expanded_text
+                        d = dict_count(st.session_state.expanded_items)
+                        st.write(f'Expanded items {expanded_text}')
+                        result = run_prime_calculator(d[0],
+                                                      d[1],
+                                                      d[2],
+                                                      d[3],
+                                                      d[4], bypass=True, calc_type=st.session_state.calc_type,
+                                                      plot=st.session_state.enable_plot,
+                                                      display_anova=st.session_state.display_anova)
+                elif action == 'Reset All':
+                    st.write('Press confirm to reset')
+                    if st.button("Confirm"):
+                        reset_images()
 def help_page():
     st.title('Tool Usage & Info')
     # st.markdown("<h2 style='color: red;'>🚧 Image from clipboard: WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
