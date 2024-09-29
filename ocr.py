@@ -81,6 +81,36 @@ def count_types(item_list, dataframe=df_cleaned):
 
     return type_counts
 
+# Function to parse the input string
+def extract_items(input_str, df=df_cleaned):
+    parsed_items = []
+    
+    # Find all instances of "N X" followed by an item
+    n_x_pattern = r'(\d+)\s*X\s*([A-Za-z\s]+)'
+    matches = re.findall(n_x_pattern, input_str)
+    
+    # Handle "N X Item" matches
+    for match in matches:
+        count = int(match[0])
+        item_str = match[1].strip()
+        
+        # Find if the item is in the dataframe
+        for index, row in df.iterrows():
+            item = row['Item']
+            if item_str.startswith(item):  # Ensure matching item
+                parsed_items.extend([item] * count)
+                input_str = input_str.replace(f'{count} X {item}', '', 1)
+                break
+
+    # Handle remaining single items (without "N X" prefix)
+    for index, row in df.iterrows():
+        item = row['Item']
+        if item in input_str:
+            parsed_items.append(item)
+            input_str = input_str.replace(item, '', 1)
+
+    return parsed_items
+
 
 # def expand_list(items):
 #     expanded_list = []
