@@ -52,54 +52,16 @@ input_method = st.sidebar.radio(
     ("Manual Input", "Image from clipboard","Data Selection")
 )
 # Sidebar settings for calculation type and options
-
 calc_type = st.sidebar.selectbox("Select Calculation Type", ["narrow", "broad"])
 st.session_state.calc_type = 2 if calc_type == 'broad' else 1
 st.session_state.display_anova = st.sidebar.checkbox("Display ANOVA results", value=st.session_state.display_anova)
 st.session_state.enable_plot = st.sidebar.checkbox("Enable Plotting", value=st.session_state.enable_plot)
-
-# Function to handle clipboard monitoring for pasted images
-# def monitor_clipboard():
-#     """Continuously monitor clipboard for new images when the toggle is active."""
-#     while st.session_state.monitor_clipboard:
-#         paste_result = pbutton("📋 Paste an image")
-
-#         if paste_result.image_data is not None:
-#             img_np = np.array(paste_result.image_data)
-#             if not any(np.array_equal(img_np, img) for img in st.session_state.images):
-#                 st.session_state.images.append(img_np)
-#                 st.image(paste_result.image_data)
-#                 # Reset extracted text when a new image is added
-#                 st.session_state.extracted_text = []
-#                 st.session_state.edited_text = []
-#                 st.session_state.mode = "process"  # Switch to processing mode when a new image is added
-#                 st.success("New image detected and added successfully.")
 
 def image_exists(new_img_data):
     for img in st.session_state.images:
         if np.array_equal(new_img_data, img):
             return True
     return False
-
-# Function to handle pasting images
-# def handle_paste_images():
-#     paste_result = pbutton("📋 Paste an image")  # Use pbutton to paste the image
-
-#     # Check if there's valid pasted image data
-#     if paste_result.image_data is not None:
-#         # Convert to numpy array
-#         img_np = np.array(paste_result.image_data)
-
-#         # Check if the image has already been added
-#         if not image_exists(img_np):
-#             st.session_state.images.append(img_np)
-#             st.write('Pasted image:')
-#             st.image(paste_result.image_data)
-
-#             # Reset the processed flag since a new image has been added
-#             st.session_state.processed = False
-#         # else:
-#         #     st.warning("This image has already been added.")
 
 # Function to handle pasting images
 def handle_paste_images():
@@ -114,18 +76,6 @@ def handle_paste_images():
             st.session_state.edited_text = []
             st.session_state.mode = "process"  # Switch to processing mode
 
-# Function to process images with EasyOCR and extract text
-# def process_images():
-#     combined_text = []
-#     print(st.session_state.images)
-#     for img in st.session_state.images:
-#         st.write("Processing image with EasyOCR...")
-#         extracted_text = reader.readtext(img,detail=0)  # Extract text
-#         combined_text.extend(extracted_text)
-
-#     st.session_state.extracted_text = combined_text
-#     st.write("Extracted Text:")
-#     st.write(combined_text)
 
 # Function to process images and extract text
 def process_images():
@@ -146,13 +96,10 @@ def process_images():
 
 # Function to display and edit extracted text
 
-
 def display_editable_text():
     st.write("### Edit Extracted Text")
-
     # Input field for the user to specify which text segment numbers they want to remove (comma-separated)
     segment_numbers = st.text_input("Enter the text segment numbers you want to remove (comma-separated):")
-
     # Convert the segment numbers into a list of integers, handling empty input and invalid values
     if segment_numbers:
         try:
@@ -163,7 +110,6 @@ def display_editable_text():
             segment_list = []
     else:
         segment_list = []
-
     # Loop over the extracted text, and display each segment
     for i, text in enumerate(st.session_state.extracted_text):
         # Only show text areas for segments not marked for removal
@@ -174,7 +120,6 @@ def display_editable_text():
             # Update the session state for the edited text
             st.session_state.edited_text[i] = edited_text
     st.session_state.extracted_text = st.session_state.edited_text
-
     # Remove the text segments that the user has specified
     if segment_list:
         # Remove segments in reverse order to avoid index shifting issues
@@ -186,43 +131,6 @@ def display_editable_text():
 
     # Change the mode to "view" if needed
     st.session_state.mode = "view"
-
-
-
-# def process_images():
-#     combined_text = []
-#     if not st.session_state.images:
-#         st.error("No images to process. Please paste at least one image.")
-#         return
-
-#     for img in st.session_state.images:
-#         st.write("Processing image with EasyOCR...")
-        
-#         # Preprocess the image before OCR
-#         image_pil = Image.fromarray(img)
-#         processed_img = preprocess_image(image_pil)
-        
-#         # Convert back to numpy array for OCR processing
-#         processed_img_np = np.array(processed_img)
-#         extracted_text = reader.readtext(processed_img_np, detail=0)  # Extract text
-#         combined_text.extend(extracted_text)
-        
-#     st.session_state.extracted_text = combined_text
-#     st.write("Extracted Text:")
-#     st.write(combined_text)
-
-# # Preprocess the image by resizing and enhancing
-# def preprocess_image(image):
-#     # Resize the image to the specified dimensions
-#     resized_image = image.resize(RESIZE_DIMENSIONS, Image.LANCZOS)
-    
-#     # Convert to grayscale and enhance contrast for better OCR performance
-#     gray_image = resized_image.convert('L')
-#     enhancer = ImageEnhance.Contrast(gray_image)
-#     enhanced_image = enhancer.enhance(2)  # Enhance contrast
-#     return enhanced_image
-
-
 
 # Reset function to clear all images and extracted text
 def reset_images():
