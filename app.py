@@ -1,7 +1,7 @@
 import easyocr
 import streamlit as st
 from calc import run_prime_calculator
-from ocr import expand_list, count_types, count, return_df, dict_count
+from ocr import expand_list, count_types, count, return_df, dict_count,finalize_process
 from PIL import Image
 from streamlit_paste_button import paste_image_button as pbutton
 import numpy as np
@@ -292,22 +292,14 @@ def clipboard_code():
             st.write(st.session_state.extracted_text)
         
             # Action options after viewing the final text
-            action = st.radio("Choose an action:", ["Remove Last N Items", "Reset All", "Calculate Profit"])
+            action = st.radio("Choose an action:", ["Calculate Profit", "Reset All"])
     
-            if action == "Remove Last N Items":
-                n_to_remove = st.number_input("Enter number of items to remove from the end", min_value=1, value=1, step=1)
-                if st.button("Remove Last N Items"):
-                    st.session_state.extracted_text = st.session_state.extracted_text[:-n_to_remove]
-                    st.session_state.edited_text = st.session_state.extracted_text  # Sync edited text with changes
-                    st.write(st.session_state.extracted_text)
-        
-        
-            elif action == "Calculate Profit":
+            if action == "Calculate Profit":
                 if st.session_state.extracted_text:
                     # st.write(st.session_state.extracted_text)
-                    expanded_text = expand_list(st.session_state.extracted_text)
-                    st.session_state.expanded_items = expanded_text
-                    d = dict_count(st.session_state.expanded_items)
+                    # expanded_text = expand_list(st.session_state.extracted_text)
+                    # st.session_state.expanded_items = expanded_text
+                    d = finalize_process(st.session_state.extracted_text)
                     result = run_prime_calculator(d[0],
                                                   d[1],
                                                   d[2],
