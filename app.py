@@ -147,12 +147,35 @@ def process_images():
 # Function to display and edit extracted text
 def display_editable_text():
     st.write("### Edit Extracted Text")
+
+    # Input field for the user to specify multiple texts they want to remove
+    target_texts = st.text_input("Enter the items you want to remove (comma-separated):")
+
+    # Split the input into a list of target texts
+    target_list = [target.strip() for target in target_texts.split(",") if target.strip()]
+
+    # Loop over the extracted text
     for i, text in enumerate(st.session_state.extracted_text):
+        # Get the current edited text from the user
         edited_text = st.text_area(f"Text Segment {i+1}", value=st.session_state.edited_text[i], key=f"text_{i}")
+        if target_list:
+            # Apply each target text removal
+            for target_text in target_list:
+                if target_text in edited_text:
+                    # Remove the target text
+                    edited_text = edited_text.replace(target_text, "")
+    
+                    # Optionally, display a warning about the modification
+                    st.warning(f"Removed '{target_text}' from Text Segment {i+1}")
+
+        # Store the modified text back into the session state
         st.session_state.edited_text[i] = edited_text
 
+    # After processing all text segments, update the extracted text in the session state
     st.session_state.extracted_text = st.session_state.edited_text.copy()
-    st.session_state.mode = "view"  # Switch back to view mode
+
+    # Change the mode to "view" if needed
+    st.session_state.mode = "view"
 
 
 # def process_images():
