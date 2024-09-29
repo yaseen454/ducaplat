@@ -173,7 +173,7 @@ def display_editable_text():
             
             # Update the session state for the edited text
             st.session_state.edited_text[i] = edited_text
-    st.session_state.extracted_text = st.sessoin_state.edited_text
+    st.session_state.extracted_text = st.session_state.edited_text
 
     # Remove the text segments that the user has specified
     if segment_list:
