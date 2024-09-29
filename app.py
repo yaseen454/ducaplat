@@ -145,43 +145,47 @@ def process_images():
     st.session_state.mode = "view"  # Switch to view mode after processing
 
 # Function to display and edit extracted text
+import streamlit as st
+
 def display_editable_text():
     st.write("### Edit Extracted Text")
 
-    # Input field for the user to specify multiple texts they want to remove
-    target_texts = st.text_input("Enter the texts you want to remove (comma-separated):")
+    # Input field for the user to specify which text segment numbers they want to remove (comma-separated)
+    segment_numbers = st.text_input("Enter the text segment numbers you want to remove (comma-separated):")
 
-    # Split the input into a list of target texts
-    target_list = [target.strip() for target in target_texts.split(",") if target.strip()]
+    # Convert the segment numbers into a list of integers, handling empty input and invalid values
+    if segment_numbers:
+        try:
+            # Split the input and convert to integers
+            segment_list = [int(num.strip()) - 1 for num in segment_numbers.split(",") if num.strip()]
+        except ValueError:
+            st.error("Please enter valid segment numbers separated by commas.")
+            segment_list = []
+    else:
+        segment_list = []
 
-    # Create a new list to hold text segments that don't contain any of the target texts
-    new_edited_texts = []
-
-    # Loop over the extracted text
+    # Loop over the extracted text, and display each segment
     for i, text in enumerate(st.session_state.extracted_text):
-        # Get the current edited text from the user
-        edited_text = st.text_area(f"Text Segment {i+1}", value=st.session_state.edited_text[i], key=f"text_{i}")
+        # Only show text areas for segments not marked for removal
+        if i not in segment_list:
+            # Get the current edited text from the user
+            edited_text = st.text_area(f"Text Segment {i+1}", value=st.session_state.edited_text[i], key=f"text_{i}")
+            
+            # Update the session state for the edited text
+            st.session_state.edited_text[i] = edited_text
 
-        # Flag to check if this text should be removed
-        remove_segment = False
-
-        # Apply each target text removal
-        for target_text in target_list:
-            if target_text in edited_text:
-                # Mark the segment for removal and display warning
-                remove_segment = True
-                st.warning(f"Removed '{target_text}' from Text Segment {i+1}")
-
-        # If the segment is not flagged for removal, add it to the new list
-        if not remove_segment:
-            new_edited_texts.append(edited_text)
-
-    # Update the session state with the new list (with removed segments)
-    st.session_state.edited_text = new_edited_texts
-    st.session_state.extracted_text = new_edited_texts.copy()
+    # Remove the text segments that the user has specified
+    if segment_list:
+        # Remove segments in reverse order to avoid index shifting issues
+        for index in sorted(segment_list, reverse=True):
+            if 0 <= index < len(st.session_state.extracted_text):
+                del st.session_state.edited_text[index]
+                del st.session_state.extracted_text[index]
+                st.warning(f"Removed Text Segment {index+1}")
 
     # Change the mode to "view" if needed
     st.session_state.mode = "view"
+
 
 
 # def process_images():
