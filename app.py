@@ -151,11 +151,9 @@ def display_editable_text():
         edited_text = st.text_area(f"Text Segment {i+1}", value=st.session_state.edited_text[i], key=f"text_{i}")
         st.session_state.edited_text[i] = edited_text
 
-    # "Apply Changes" button to confirm edits
-    if st.button("Apply Changes"):
-        st.session_state.extracted_text = st.session_state.edited_text.copy()
-        st.session_state.mode = "view"  # Switch back to view mode
-        st.success("Changes applied successfully!")
+    st.session_state.extracted_text = st.session_state.edited_text.copy()
+    st.session_state.mode = "view"  # Switch back to view mode
+    st.success("Changes applied successfully!")
 
 
 # def process_images():
@@ -254,8 +252,7 @@ def clipboard_code():
 
     # Display different content based on the mode
     if st.session_state.extracted_text:
-        if st.button('Edit Text'):
-            display_editable_text()  # Show editable text areas if in editing mode
+       display_editable_text()  # Show editable text areas if in editing mode
         if st.session_state.mode == "view":
             st.write("### Final Extracted Text")
             st.write(st.session_state.extracted_text)
@@ -264,7 +261,7 @@ def clipboard_code():
             action = st.radio("Choose an action:", ["Edit Text", "Remove Last N Items", "Reset All", "Calculate Profit"])
 
             if action == "Edit Text":
-                st.session_state.mode = "edit"  # Switch to edit mode
+                display_editable_text() # Switch to edit mode
 
             elif action == "Remove Last N Items":
                 n_to_remove = st.number_input("Enter number of items to remove from the end", min_value=1, value=1, step=1)
