@@ -1,7 +1,7 @@
 import easyocr
 import streamlit as st
 from calc import run_prime_calculator
-from ocr import expand_list, count_types, count, return_df, dict_count,finalize_process
+from ocr import  return_df, finalize_process
 from PIL import Image
 from streamlit_paste_button import paste_image_button as pbutton
 import numpy as np
