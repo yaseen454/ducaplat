@@ -66,7 +66,8 @@ def count_types(item_list, dataframe=df_cleaned):
         row = dataframe[dataframe['Item Name'] == item]
         if row.empty:
             # Raise a warning and stop the program if the item isn't found
-            raise ValueError(f"Warning: Item '{item}' was not found amongst prime blueprints.")
+            st.warning(f'Warning: Item {item} was not found amongts prime blueprints.')
+            # raise ValueError(f"Warning: Item '{item}' was not found amongst prime blueprints.")
 
         if not row.empty:
             item_type = row.iloc[0]['Type']  # Get the 'Type' of the item
