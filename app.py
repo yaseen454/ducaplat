@@ -58,6 +58,23 @@ st.session_state.calc_type = 2 if calc_type == 'broad' else 1
 st.session_state.display_anova = st.sidebar.checkbox("Display ANOVA results", value=st.session_state.display_anova)
 st.session_state.enable_plot = st.sidebar.checkbox("Enable Plotting", value=st.session_state.enable_plot)
 
+# Function to handle clipboard monitoring for pasted images
+def monitor_clipboard():
+    """Continuously monitor clipboard for new images when the toggle is active."""
+    while st.session_state.monitor_clipboard:
+        paste_result = pbutton("📋 Paste an image")
+
+        if paste_result.image_data is not None:
+            img_np = np.array(paste_result.image_data)
+            if not any(np.array_equal(img_np, img) for img in st.session_state.images):
+                st.session_state.images.append(img_np)
+                st.image(paste_result.image_data)
+                # Reset extracted text when a new image is added
+                st.session_state.extracted_text = []
+                st.session_state.edited_text = []
+                st.session_state.mode = "process"  # Switch to processing mode when a new image is added
+                st.success("New image detected and added successfully.")
+        time.sleep(2)  # Wait for 2 seconds before checking again to avoid rapid looping
 
 def image_exists(new_img_data):
     for img in st.session_state.images:
@@ -129,19 +146,17 @@ def process_images():
     st.session_state.mode = "view"  # Switch to view mode after processing
 
 # Function to display and edit extracted text
-# Function to display and edit extracted text
-# Function to display and edit extracted text
-# def display_editable_text():
-#     st.write("### Edit Extracted Text")
-#     for i, text in enumerate(st.session_state.extracted_text):
-#         edited_text = st.text_area(f"Text Segment {i+1}", value=st.session_state.edited_text[i], key=f"text_{i}")
-#         st.session_state.edited_text[i] = edited_text
+def display_editable_text():
+    st.write("### Edit Extracted Text")
+    for i, text in enumerate(st.session_state.extracted_text):
+        edited_text = st.text_area(f"Text Segment {i+1}", value=st.session_state.edited_text[i], key=f"text_{i}")
+        st.session_state.edited_text[i] = edited_text
 
-#     # "Apply Changes" button to confirm edits
-#     if st.button("Apply Changes"):
-#         st.session_state.extracted_text = st.session_state.edited_text.copy()
-#         st.session_state.mode = "view"  # Switch back to view mode
-#         st.success("Changes applied successfully!")
+    # "Apply Changes" button to confirm edits
+    if st.button("Apply Changes"):
+        st.session_state.extracted_text = st.session_state.edited_text.copy()
+        st.session_state.mode = "view"  # Switch back to view mode
+        st.success("Changes applied successfully!")
 
 
 # def process_images():
@@ -233,46 +248,59 @@ def clipboard_code():
     st.write("**Important Notes:** _make sure the image you copy is not bad in quality, where text is clear and visible so the ocr can run properly, pasting two of the same images consequently is not allowed_")
     st.write("**Pasting does not support mobile browsers & firefox**")
     # Paste images section
-    handle_paste_images()
+     # Toggle to start/stop clipboard monitoring
+    st.session_state.monitor_clipboard = st.checkbox("Start Clipboard Monitoring")
+
+    if st.session_state.monitor_clipboard:
+        st.warning("Clipboard monitoring is active. Paste an image to add it.")
+        monitor_clipboard()
+    else:
+        st.info("Clipboard monitoring is inactive.")
+
+    # Button to process images after clipboard monitoring
     if st.button("Process Images") and st.session_state.images:
         process_images()
-        if st.session_state.extracted_text:
-            st.write("### Edit Extracted Text")
-            for i, text in enumerate(st.session_state.extracted_text):
-                edited_text = st.text_area(f"Text Segment {i+1}", value=st.session_state.edited_text[i], key=f"text_{i}")
-                st.session_state.edited_text[i] = edited_text
+
+    # Display different content based on the mode
+    if st.session_state.extracted_text:
+        if st.button('Edit Text'):
+            display_editable_text()  # Show editable text areas if in editing mode
+        if st.session_state.mode == "view":
+            st.write("### Final Extracted Text")
+            st.write(st.session_state.extracted_text)
+
+            # Action options after viewing the final text
+            action = st.radio("Choose an action:", ["Edit Text", "Remove Last N Items", "Reset All", "Calculate Profit"])
+
+            if action == "Edit Text":
+                st.session_state.mode = "edit"  # Switch to edit mode
+
+            elif action == "Remove Last N Items":
+                n_to_remove = st.number_input("Enter number of items to remove from the end", min_value=1, value=1, step=1)
+                if st.button("Remove Last N Items"):
+                    st.session_state.extracted_text = st.session_state.extracted_text[:-n_to_remove]
+                    st.session_state.edited_text = st.session_state.extracted_text  # Sync edited text with changes
+                    st.write(st.session_state.extracted_text)
+
         
-            # "Apply Changes" button to confirm edits
-            if st.button("Apply Changes"):
-                st.session_state.extracted_text = st.session_state.edited_text.copy()
-                st.success("Changes applied successfully!")
-                st.write("### Final Extracted Text")
-                st.write(st.session_state.extracted_text)
-        
-                # Action options after viewing the final text
-                action = st.radio("Choose an action:", ["Edit Text", "Reset All", "Calculate Profit"])
-        
-                if action == "Edit Text":
-                    st.session_state.mode = "edit"  # Switch to edit mode
-        
-                elif action == "Calculate Profit":
-                    if st.session_state.extracted_text:
-                        st.write(st.session_state.extracted_text)
-                        expanded_text = expand_list(st.session_state.extracted_text)
-                        st.session_state.expanded_items = expanded_text
-                        d = dict_count(st.session_state.expanded_items)
-                        st.write(f'Expanded items {expanded_text}')
-                        result = run_prime_calculator(d[0],
-                                                      d[1],
-                                                      d[2],
-                                                      d[3],
-                                                      d[4], bypass=True, calc_type=st.session_state.calc_type,
-                                                      plot=st.session_state.enable_plot,
-                                                      display_anova=st.session_state.display_anova)
-                elif action == 'Reset All':
-                    st.write('Press confirm to reset')
-                    if st.button("Confirm"):
-                        reset_images()
+            elif action == "Calculate Profit":
+                if st.session_state.extracted_text:
+                    st.write(st.session_state.extracted_text)
+                    expanded_text = expand_list(st.session_state.extracted_text)
+                    st.session_state.expanded_items = expanded_text
+                    d = dict_count(st.session_state.expanded_items)
+                    st.write(f'Expanded items {expanded_text}')
+                    result = run_prime_calculator(d[0],
+                                                  d[1],
+                                                  d[2],
+                                                  d[3],
+                                                  d[4], bypass=True, calc_type=st.session_state.calc_type,
+                                                  plot=st.session_state.enable_plot,
+                                                  display_anova=st.session_state.display_anova)
+            elif action == 'Reset All':
+                st.write('Press confirm to reset')
+                if st.button("Confirm"):
+                    reset_images()
 def help_page():
     st.title('Tool Usage & Info')
     # st.markdown("<h2 style='color: red;'>🚧 Image from clipboard: WORK IN PROGRESS 🚧</h2>", unsafe_allow_html=True)
