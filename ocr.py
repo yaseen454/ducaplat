@@ -95,7 +95,7 @@ def extract_items(input_str, df=df_cleaned):
         item_str = match[1].strip()
         
         # Find if the item is in the dataframe
-        for index, row in df['Item Name'].iteritems():
+        for index, row in df['Item Name'].items():
             item = row['Item Name']
             if item_str.startswith(item):  # Ensure matching item
                 parsed_items.extend([item] * count)
@@ -103,7 +103,7 @@ def extract_items(input_str, df=df_cleaned):
                 break
 
     # Handle remaining single items (without "N X" prefix)
-    for index, row in df['Item Name'].iteritems():
+    for index, row in df['Item Name'].items():
         item = row['Item Name']
         if item in input_str:
             parsed_items.append(item)
