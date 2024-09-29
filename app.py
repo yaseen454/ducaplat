@@ -102,17 +102,17 @@ def image_exists(new_img_data):
 #         #     st.warning("This image has already been added.")
 
 # Function to handle pasting images
-def handle_paste_images():
-    paste_result = pbutton("📋 Paste an image")
-    if paste_result.image_data is not None:
-        img_np = np.array(paste_result.image_data)
-        if not any(np.array_equal(img_np, img) for img in st.session_state.images):
-            st.session_state.images.append(img_np)
-            st.image(paste_result.image_data)
-            # Reset state after new image is added
-            st.session_state.extracted_text = []
-            st.session_state.edited_text = []
-            st.session_state.mode = "process"  # Switch to processing mode
+# def handle_paste_images():
+#     paste_result = pbutton("📋 Paste an image")
+#     if paste_result.image_data is not None:
+#         img_np = np.array(paste_result.image_data)
+#         if not any(np.array_equal(img_np, img) for img in st.session_state.images):
+#             st.session_state.images.append(img_np)
+#             st.image(paste_result.image_data)
+#             # Reset state after new image is added
+#             st.session_state.extracted_text = []
+#             st.session_state.edited_text = []
+#             st.session_state.mode = "process"  # Switch to processing mode
 
 # Function to process images with EasyOCR and extract text
 # def process_images():
